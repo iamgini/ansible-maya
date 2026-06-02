@@ -1,12 +1,12 @@
-# Ansible Sage Examples
+# Ansible AI Gateway Examples
 
-This directory contains examples demonstrating how to use Ansible Sage for event-driven playbook generation.
+This directory contains examples demonstrating how to use Ansible AI Gateway for event-driven playbook generation.
 
 ## Prerequisites
 
-1. **Install Ansible Sage**:
+1. **Install Ansible AI Gateway**:
    ```bash
-   cd /path/to/ansible-sage
+   cd /path/to/ansible-ai-gateway
    pip install -e .
    ```
 
@@ -68,7 +68,7 @@ make run
 Generate a playbook for a disk full event:
 
 ```bash
-ansible-sage generate \
+ansible-ai-gateway generate \
   --event-type disk_full \
   --description "Disk usage at 95% on /var" \
   --host web-server-01 \
@@ -79,27 +79,27 @@ ansible-sage generate \
 Validate an existing playbook:
 
 ```bash
-ansible-sage validate playbook.yml --fix
+ansible-ai-gateway validate playbook.yml --fix
 ```
 
 List supported event types:
 
 ```bash
-ansible-sage list-events
+ansible-ai-gateway list-events
 ```
 
 Start the API server:
 
 ```bash
-ansible-sage serve --host 0.0.0.0 --port 8000 --reload
+ansible-ai-gateway serve --host 0.0.0.0 --port 8000 --reload
 ```
 
 ### Python API
 
 ```python
 import asyncio
-from sage.core.providers import get_provider
-from sage.handlers.orchestrator import handle_infrastructure_event, EventSeverity
+from ansible_ai_gateway.core.providers import get_provider
+from ansible_ai_gateway.handlers.orchestrator import handle_infrastructure_event, EventSeverity
 
 async def main():
     # Get LLM provider
@@ -215,7 +215,7 @@ make run
 
 **Error: Module not found**
 
-Install Ansible Sage:
+Install Ansible AI Gateway:
 ```bash
 pip install -e .
 ```

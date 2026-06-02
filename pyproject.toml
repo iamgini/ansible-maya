@@ -3,14 +3,14 @@ requires = ["setuptools>=68.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "ansible-sage"
+name = "ansible-ai-gateway"
 version = "0.1.0"
-description = "Self-healing Ansible Generation Engine - AI-powered event-driven playbook generation"
+description = "Multi-provider AI gateway for Ansible playbook generation - Supports watsonx, Claude, OpenAI, Ollama, and custom LLM providers"
 readme = "README.md"
 requires-python = ">=3.11"
 license = {text = "Apache-2.0"}
 authors = [
-    {name = "Ansible Sage Contributors"}
+    {name = "Ansible AI Gateway Contributors"}
 ]
 keywords = [
     "ansible",
@@ -62,18 +62,17 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/your-org/ansible-sage"
-Documentation = "https://ansible-sage.readthedocs.io"
-Repository = "https://github.com/your-org/ansible-sage"
-Issues = "https://github.com/your-org/ansible-sage/issues"
+Homepage = "https://github.com/your-org/ansible-ai-gateway"
+Documentation = "https://ansible-ai-gateway.readthedocs.io"
+Repository = "https://github.com/your-org/ansible-ai-gateway"
+Issues = "https://github.com/your-org/ansible-ai-gateway/issues"
 
 [project.scripts]
-sage = "sage.cli:main"
-ansible-sage = "sage.cli:main"
+ansible-ai-gateway = "ansible_ai_gateway.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["sage*"]
+include = ["ansible_ai_gateway*"]
 exclude = ["tests*", "docs*"]
 
 [tool.black]
@@ -173,7 +172,7 @@ asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
 
 [tool.coverage.run]
-source = ["sage"]
+source = ["ansible_ai_gateway"]
 omit = [
     "*/tests/*",
     "*/test_*.py",

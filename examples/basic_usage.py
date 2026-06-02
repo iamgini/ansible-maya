@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright 2026 Ansible Sage Contributors
+# Copyright 2026 Ansible AI Gateway Contributors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
 # limitations under the License.
 
 """
-Basic usage example for Ansible Sage.
+Basic usage example for Ansible AI Gateway.
 
 This demonstrates:
 1. Creating an event
@@ -27,14 +27,14 @@ import asyncio
 import os
 from datetime import datetime
 
-from sage.core.providers import get_provider
-from sage.handlers.orchestrator import AIOpsEvent, EventSeverity, PlaybookOrchestrator
+from ansible_ai_gateway.core.providers import get_provider
+from ansible_ai_gateway.handlers.orchestrator import AIOpsEvent, EventSeverity, PlaybookOrchestrator
 
 
 async def main():
     """Main example function."""
     print("=" * 70)
-    print("Ansible Sage - Basic Usage Example")
+    print("Ansible AI Gateway - Basic Usage Example")
     print("=" * 70)
 
     # 1. Configure LLM Provider

@@ -13,7 +13,7 @@ Add support for OpenAI GPT-4 and GPT-3.5 as LLM providers for playbook generatio
 
 ## Problem Statement
 
-Currently, Ansible Sage only supports Claude (Anthropic) as an LLM provider. Many users prefer or require OpenAI's GPT models due to:
+Currently, Ansible AI Gateway only supports Claude (Anthropic) as an LLM provider. Many users prefer or require OpenAI's GPT models due to:
 - Existing OpenAI API subscriptions
 - Corporate vendor preferences
 - Specific model capabilities (GPT-4o, GPT-4-turbo)
@@ -362,11 +362,11 @@ Before marking complete, verify:
 
 - [OpenAI API Documentation](https://platform.openai.com/docs/api-reference)
 - [OpenAI Python SDK](https://github.com/openai/openai-python)
-- [Ansible Sage BaseLLMProvider](../sage/core/providers/base.py)
+- [Ansible AI Gateway BaseLLMProvider](../sage/core/providers/base.py)
 - [Existing Claude Provider](../sage/core/providers/claude.py)
 
 ---
 
 **Specification Version**: 1.0  
 **Last Updated**: 2026-06-02  
-**Author**: Ansible Sage Team
+**Author**: Ansible AI Gateway Team

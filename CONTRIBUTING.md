@@ -1,6 +1,6 @@
-# Contributing to Ansible Sage
+# Contributing to Ansible AI Gateway
 
-First off, thank you for considering contributing to Ansible Sage! It's people like you that make Ansible Sage such a great tool.
+First off, thank you for considering contributing to Ansible AI Gateway! It's people like you that make Ansible AI Gateway such a great tool.
 
 ## Code of Conduct
 
@@ -66,11 +66,11 @@ Enhancement suggestions are tracked as GitHub issues. When creating an enhanceme
 
 ```bash
 # Clone your fork
-git clone https://github.com/YOUR_USERNAME/ansible-sage.git
-cd ansible-sage
+git clone https://github.com/YOUR_USERNAME/ansible-ai-gateway.git
+cd ansible-ai-gateway
 
 # Add upstream remote
-git remote add upstream https://github.com/your-org/ansible-sage.git
+git remote add upstream https://github.com/your-org/ansible-ai-gateway.git
 
 # Create virtual environment
 python3.11 -m venv venv
@@ -202,7 +202,7 @@ pre-commit run --all-files
 ## Project Structure
 
 ```
-ansible-sage/
+ansible-ai-gateway/
 ├── sage/                       # Main application package
 │   ├── core/                   # Core business logic
 │   │   ├── ansible_context.py  # Ansible-specific prompt engineering
@@ -248,8 +248,8 @@ ansible-sage/
 
 2. **Implement provider class:**
    ```python
-   from sage.core.providers.base import BaseLLMProvider
-   from sage.core.schemas import GenerationRequest, GenerationResponse
+   from ansible_ai_gateway.core.providers.base import BaseLLMProvider
+   from ansible_ai_gateway.core.schemas import GenerationRequest, GenerationResponse
    
    class NewProvider(BaseLLMProvider):
        name = "newprovider"
@@ -274,7 +274,7 @@ ansible-sage/
 3. **Register provider:**
    ```python
    # sage/core/providers/__init__.py
-   from sage.core.providers.newprovider import NewProvider
+   from ansible_ai_gateway.core.providers.newprovider import NewProvider
    
    PROVIDERS = {
        "claude": ClaudeProvider,
@@ -298,7 +298,7 @@ ansible-sage/
    ```python
    # tests/unit/providers/test_newprovider.py
    import pytest
-   from sage.core.providers.newprovider import NewProvider
+   from ansible_ai_gateway.core.providers.newprovider import NewProvider
    
    @pytest.mark.asyncio
    async def test_newprovider_generation():
@@ -334,7 +334,7 @@ ansible-sage/
 ```python
 import pytest
 from unittest.mock import Mock, patch
-from sage.core.ansible_context import AnsibleContextProcessor
+from ansible_ai_gateway.core.ansible_context import AnsibleContextProcessor
 
 class TestAnsibleContextProcessor:
     def test_is_multi_task_prompt_with_multiple_tasks(self):
@@ -448,9 +448,9 @@ Maintainers will handle releases, but here's the process:
 
 ## Questions?
 
-- **General questions**: Open a [GitHub Discussion](https://github.com/your-org/ansible-sage/discussions)
-- **Bug reports**: Open an [Issue](https://github.com/your-org/ansible-sage/issues)
-- **Feature requests**: Open an [Issue](https://github.com/your-org/ansible-sage/issues) with `enhancement` label
+- **General questions**: Open a [GitHub Discussion](https://github.com/your-org/ansible-ai-gateway/discussions)
+- **Bug reports**: Open an [Issue](https://github.com/your-org/ansible-ai-gateway/issues)
+- **Feature requests**: Open an [Issue](https://github.com/your-org/ansible-ai-gateway/issues) with `enhancement` label
 - **Security issues**: Email security@your-domain.com (do NOT open public issue)
 
 ## License
@@ -459,4 +459,4 @@ By contributing, you agree that your contributions will be licensed under the Ap
 
 ---
 
-**Thank you for contributing to Ansible Sage!** 🙏
+**Thank you for contributing to Ansible AI Gateway!** 🙏

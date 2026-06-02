@@ -1,10 +1,10 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code when working with the Ansible Sage codebase.
+This file provides guidance to Claude Code when working with the Ansible AI Gateway codebase.
 
 ## Project Overview
 
-**Ansible Sage** is an AI-powered event-driven playbook generation service for AIOps workflows. It automatically generates, validates, tests, and executes Ansible playbooks in response to infrastructure events.
+**Ansible AI Gateway** is an AI-powered event-driven playbook generation service for AIOps workflows. It automatically generates, validates, tests, and executes Ansible playbooks in response to infrastructure events.
 
 ### Core Components
 
@@ -67,8 +67,8 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
 # Local - absolute imports
-from sage.core.ansible_context import AnsibleContextProcessor
-from sage.core.providers.base import BaseLLMProvider
+from ansible_ai_gateway.core.ansible_context import AnsibleContextProcessor
+from ansible_ai_gateway.core.providers.base import BaseLLMProvider
 ```
 
 ---
@@ -90,7 +90,7 @@ from sage.core.providers.base import BaseLLMProvider
 Example:
 ```python
 # sage/core/providers/custom.py
-from sage.core.providers.base import BaseLLMProvider
+from ansible_ai_gateway.core.providers.base import BaseLLMProvider
 
 class CustomProvider(BaseLLMProvider):
     name = "custom"
@@ -222,7 +222,7 @@ def generate_playbook(
 Use custom exceptions defined in `sage/core/exceptions.py`:
 
 ```python
-from sage.core.exceptions import PlaybookGenerationError, ValidationError
+from ansible_ai_gateway.core.exceptions import PlaybookGenerationError, ValidationError
 
 try:
     playbook = await generator.generate(event)
@@ -258,7 +258,7 @@ Use structured logging:
 
 ```python
 import logging
-from sage.utils.logger import get_logger
+from ansible_ai_gateway.utils.logger import get_logger
 
 logger = get_logger(__name__)
 
@@ -291,7 +291,7 @@ logger.info(f"Generated playbook for {event.event_type}")
 ```python
 # tests/unit/core/test_ansible_context.py
 import pytest
-from sage.core.ansible_context import AnsibleContextProcessor
+from ansible_ai_gateway.core.ansible_context import AnsibleContextProcessor
 
 def test_multi_task_detection():
     """Test detection of multi-task prompts."""
@@ -324,7 +324,7 @@ import pytest
 @pytest.mark.asyncio
 async def test_full_generation_flow(event_fixture, claude_provider):
     """Test complete playbook generation with real LLM."""
-    from sage.handlers.orchestrator import PlaybookOrchestrator
+    from ansible_ai_gateway.handlers.orchestrator import PlaybookOrchestrator
     
     orchestrator = PlaybookOrchestrator(provider=claude_provider)
     result = await orchestrator.handle_event(event_fixture)
@@ -356,17 +356,17 @@ async def test_generated_playbook(playbook_content: str) -> MoleculeResult:
 
 ```bash
 # Build development image
-docker build -t ansible-sage:dev .
+docker build -t ansible-ai-gateway:dev .
 
 # Build with build args
 docker build \
   --build-arg PYTHON_VERSION=3.11 \
-  -t ansible-sage:dev .
+  -t ansible-ai-gateway:dev .
 
 # Run locally
 docker run -p 8000:8000 \
   -e ANTHROPIC_API_KEY=$ANTHROPIC_API_KEY \
-  ansible-sage:dev
+  ansible-ai-gateway:dev
 ```
 
 ### Docker Compose Development
@@ -376,16 +376,16 @@ docker run -p 8000:8000 \
 docker-compose up -d
 
 # View logs for specific service
-docker-compose logs -f ansible-sage
+docker-compose logs -f ansible-ai-gateway
 
 # Rebuild after code changes
-docker-compose up -d --build ansible-sage
+docker-compose up -d --build ansible-ai-gateway
 
 # Run tests in container
-docker-compose exec ansible-sage pytest
+docker-compose exec ansible-ai-gateway pytest
 
 # Shell into container
-docker-compose exec ansible-sage bash
+docker-compose exec ansible-ai-gateway bash
 ```
 
 ---
@@ -433,7 +433,7 @@ Use Redis for:
 For long-running tasks (Molecule tests), use background workers:
 
 ```python
-from sage.workers.tasks import run_molecule_test
+from ansible_ai_gateway.workers.tasks import run_molecule_test
 
 # Enqueue task
 task_id = await run_molecule_test.delay(playbook_content)
@@ -447,7 +447,7 @@ result = await get_task_result(task_id)
 Implement rate limiting for LLM APIs:
 
 ```python
-from sage.core.rate_limiter import RateLimiter
+from ansible_ai_gateway.core.rate_limiter import RateLimiter
 
 limiter = RateLimiter(
     requests_per_minute=50,

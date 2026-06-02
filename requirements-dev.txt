@@ -1,4 +1,4 @@
-# Ansible Sage - Development Dependencies
+# Ansible AI Gateway - Development Dependencies
 
 # Include production dependencies
 -r requirements.txt

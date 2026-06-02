@@ -1,10 +1,10 @@
-# Ansible Sage Test Scripts
+# Ansible AI Gateway Test Scripts
 
-Collection of test scripts to demonstrate Ansible Sage playbook generation capabilities.
+Collection of test scripts to demonstrate Ansible AI Gateway playbook generation capabilities.
 
 ## Prerequisites
 
-- Ansible Sage container running: `podman ps | grep ansible-sage`
+- Ansible AI Gateway container running: `podman ps | grep ansible-ai-gateway`
 - API accessible on http://localhost:8000
 - Python 3 with json module
 
@@ -126,9 +126,9 @@ Edit any test script to modify:
 
 **Container not running:**
 ```bash
-podman ps | grep ansible-sage
+podman ps | grep ansible-ai-gateway
 # If not running:
-podman start ansible-sage-demo
+podman start ansible-ai-gateway
 ```
 
 **API not responding:**
@@ -138,7 +138,7 @@ curl http://localhost:8000/health
 
 **View container logs:**
 ```bash
-podman logs ansible-sage-demo
+podman logs ansible-ai-gateway
 ```
 
 **Clean up old playbooks:**
@@ -184,6 +184,6 @@ curl -X POST http://localhost:8000/api/v1/events/publish-to-aap \
 ## Support
 
 For issues or questions:
-- Check container logs: `podman logs ansible-sage-demo`
+- Check container logs: `podman logs ansible-ai-gateway-demo`
 - Verify API health: `curl http://localhost:8000/health`
-- Review main README: `/home/gmadappa/ansible/ansible-sage/README.md`
+- Review main README: `/home/gmadappa/ansible/ansible-ai-gateway/README.md`

@@ -1,4 +1,4 @@
-# Copyright 2026 Ansible Sage Contributors
+# Copyright 2026 Ansible AI Gateway Contributors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,14 +20,22 @@ from typing import Any, Dict, Optional
 
 from anthropic import Anthropic, AsyncAnthropic, APIError, RateLimitError
 
-from sage.core.providers.base import (
+from ansible_ai_gateway.core.providers.base import (
     BaseLLMProvider,
     GenerationRequest,
     GenerationResponse,
     ModelTier,
     ProviderStatus,
 )
-from sage.core.prompt_templates import get_system_prompt, get_event_prompt
+from ansible_ai_gateway.core.prompt_templates import (
+    get_system_prompt,
+    get_event_prompt,
+    get_optimal_temperature,
+    parse_multi_task_prompt,
+    format_multi_task_prompt,
+    is_multi_task_prompt,
+)
+from ansible_ai_gateway.core.session_context import get_session_context
 
 
 class ClaudeProvider(BaseLLMProvider):
@@ -139,11 +147,26 @@ class ClaudeProvider(BaseLLMProvider):
         # Select model based on tier
         model = self.MODEL_MAPPING.get(request.model_tier, self.default_model)
 
+        # Get optimal temperature for event type (if not explicitly overridden)
+        if request.event_type and request.temperature == 0.3:  # Default value
+            temperature = get_optimal_temperature(request.event_type)
+        else:
+            temperature = request.temperature
+
         # Build the prompt
         system_prompt = get_system_prompt()
 
-        # Format event-specific prompt if event_type provided
-        if request.event_type:
+        # Check if this is a multi-task prompt
+        if request.is_multi_task or is_multi_task_prompt(request.event_description):
+            # Parse multiple tasks and format combined prompt
+            tasks = parse_multi_task_prompt(request.event_description)
+            event_context = {
+                'host': request.host or 'target_host',
+                'timestamp': request.constraints.get('timestamp', 'now') if request.constraints else 'now',
+            }
+            user_prompt = format_multi_task_prompt(tasks, event_context)
+        elif request.event_type:
+            # Format event-specific prompt
             user_prompt = get_event_prompt(
                 event_type=request.event_type,
                 host=request.host or "target_host",
@@ -160,6 +183,17 @@ Host: {request.host or 'target_host'}
 Follow all Ansible best practices and use FQCN for modules.
 Output only valid YAML, no explanations."""
 
+        # Add session context for related events
+        if request.host:
+            session = get_session_context()
+            session_context = session.format_context_for_prompt(
+                host=request.host,
+                current_event_type=request.event_type or "generic",
+                limit=3
+            )
+            if session_context:
+                user_prompt += session_context
+
         # Add existing playbooks context if provided
         if request.existing_playbooks:
             user_prompt += "\n\n## Existing Playbooks for Reference\n"
@@ -175,7 +209,7 @@ Output only valid YAML, no explanations."""
             response = await self.async_client.messages.create(
                 model=model,
                 max_tokens=request.max_tokens,
-                temperature=request.temperature,
+                temperature=temperature,
                 system=system_prompt,
                 messages=[
                     {
@@ -204,6 +238,19 @@ Output only valid YAML, no explanations."""
                 else None
             )
 
+            # Record event in session context for future correlation
+            if request.host:
+                session = get_session_context()
+                session.add_event(
+                    event_type=request.event_type or "generic",
+                    host=request.host,
+                    description=request.event_description,
+                    playbook=final_playbook,
+                    service=(request.constraints or {}).get('service') if request.constraints else None,
+                    success=True,  # Assume success at generation time, update after validation
+                    metadata=request.constraints or {},
+                )
+
             return GenerationResponse(
                 playbook=final_playbook,
                 model=model,
@@ -214,6 +261,8 @@ Output only valid YAML, no explanations."""
                     "input_tokens": response.usage.input_tokens if hasattr(response, "usage") else None,
                     "output_tokens": response.usage.output_tokens if hasattr(response, "usage") else None,
                     "stop_reason": response.stop_reason if hasattr(response, "stop_reason") else None,
+                    "temperature": temperature,
+                    "event_type": request.event_type,
                 },
             )
 
@@ -228,7 +277,7 @@ Output only valid YAML, no explanations."""
         self,
         original_playbook: str,
         issues: str,
-        temperature: float = 0.2,
+        temperature: float = 0.15,  # Lower for refinement (more focused)
     ) -> GenerationResponse:
         """
         Refine a playbook based on identified issues.

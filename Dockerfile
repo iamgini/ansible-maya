@@ -1,4 +1,4 @@
-# Copyright 2026 Ansible Sage Contributors
+# Copyright 2026 Ansible AI Gateway Contributors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -6,7 +6,7 @@
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
 
-# Multi-stage build for Ansible Sage
+# Multi-stage build for Ansible AI Gateway
 
 # ============================================================================
 # Stage 1: Builder - Install dependencies
@@ -41,11 +41,11 @@ RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
 FROM python:3.11-slim
 
 # Metadata
-LABEL org.opencontainers.image.title="Ansible Sage"
+LABEL org.opencontainers.image.title="Ansible AI Gateway"
 LABEL org.opencontainers.image.description="AI-powered event-driven Ansible playbook generation"
-LABEL org.opencontainers.image.vendor="Ansible Sage Contributors"
+LABEL org.opencontainers.image.vendor="Ansible AI Gateway Contributors"
 LABEL org.opencontainers.image.licenses="Apache-2.0"
-LABEL org.opencontainers.image.source="https://github.com/your-org/ansible-sage"
+LABEL org.opencontainers.image.source="https://github.com/your-org/ansible-ai-gateway"
 
 # Install runtime dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \

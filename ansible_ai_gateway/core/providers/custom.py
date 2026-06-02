@@ -1,4 +1,4 @@
-# Copyright 2026 Ansible Sage Contributors
+# Copyright 2026 Ansible AI Gateway Contributors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@ from typing import Optional
 
 from openai import AsyncOpenAI
 
-from sage.core.providers.base import (
+from ansible_ai_gateway.core.providers.base import (
     BaseLLMProvider,
     GenerationRequest,
     GenerationResponse,
@@ -76,7 +76,7 @@ class CustomProvider(BaseLLMProvider):
             Generation response with playbook content
         """
         import time
-        from sage.core.prompt_templates import get_system_prompt, get_event_prompt
+        from ansible_ai_gateway.core.prompt_templates import get_system_prompt, get_event_prompt
 
         start_time = time.time()
 

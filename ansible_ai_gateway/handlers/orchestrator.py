@@ -1,4 +1,4 @@
-# Copyright 2026 Ansible Sage Contributors
+# Copyright 2026 Ansible AI Gateway Contributors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -27,18 +27,18 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
-from sage.core.ansible_context import AnsibleContextProcessor
-from sage.core.exceptions import (
+from ansible_ai_gateway.core.ansible_context import AnsibleContextProcessor
+from ansible_ai_gateway.core.exceptions import (
     EventClassificationError,
     PlaybookGenerationError,
     ValidationError,
 )
-from sage.core.providers.base import (
+from ansible_ai_gateway.core.providers.base import (
     BaseLLMProvider,
     GenerationRequest,
     ModelTier,
 )
-from sage.validation.ansible_lint import validate_playbook, LintResult
+from ansible_ai_gateway.validation.ansible_lint import validate_playbook, LintResult
 
 logger = logging.getLogger(__name__)
 
@@ -508,7 +508,7 @@ async def handle_infrastructure_event(
         PlaybookResponse with generated playbook
 
     Example:
-        >>> from sage.core.providers import get_provider
+        >>> from ansible_ai_gateway.core.providers import get_provider
         >>> provider = get_provider("claude", config={"api_key": "sk-..."})
         >>> response = await handle_infrastructure_event(
         ...     event_description="Disk usage is 95% on /var",

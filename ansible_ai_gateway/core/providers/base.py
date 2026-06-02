@@ -1,4 +1,4 @@
-# Copyright 2026 Ansible Sage Contributors
+# Copyright 2026 Ansible AI Gateway Contributors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -48,6 +48,7 @@ class GenerationRequest:
     model_tier: ModelTier = ModelTier.BALANCED
     temperature: float = 0.3
     max_tokens: int = 4000
+    is_multi_task: bool = False  # Flag for multi-task chaining
 
 
 @dataclass

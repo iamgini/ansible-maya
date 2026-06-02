@@ -1,0 +1,10 @@
+{
+  "event_description": "Install postgresql & Setup database & Create admin user & Start service",
+  "host": "db-server-01.example.com",
+  "severity": "medium",
+  "metadata": {
+    "database_name": "appdb",
+    "admin_user": "dbadmin"
+  },
+  "tags": ["database", "setup", "multi-task"]
+}

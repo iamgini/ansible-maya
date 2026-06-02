@@ -1,10 +1,10 @@
-# Copyright 2026 Ansible Sage Contributors
+# Copyright 2026 Ansible AI Gateway Contributors
 # Licensed under the Apache License, Version 2.0
 
 """Core business logic for Ansible Sage."""
 
-from sage.core.ansible_context import AnsibleContextProcessor, AnsibleFileType
-from sage.core.exceptions import (
+from ansible_ai_gateway.core.ansible_context import AnsibleContextProcessor, AnsibleFileType
+from ansible_ai_gateway.core.exceptions import (
     AnsibleLintError,
     ConfigurationError,
     EventClassificationError,
@@ -12,7 +12,7 @@ from sage.core.exceptions import (
     PlaybookGenerationError,
     ValidationError,
 )
-from sage.core.providers import (
+from ansible_ai_gateway.core.providers import (
     BaseLLMProvider,
     ClaudeProvider,
     GenerationRequest,
@@ -20,7 +20,7 @@ from sage.core.providers import (
     ModelTier,
     get_provider,
 )
-from sage.core.prompt_templates import get_event_prompt, get_system_prompt
+from ansible_ai_gateway.core.prompt_templates import get_event_prompt, get_system_prompt
 
 __all__ = [
     # Context processing

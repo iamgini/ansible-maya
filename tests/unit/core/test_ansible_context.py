@@ -17,7 +17,7 @@
 import pytest
 from pathlib import Path
 
-from sage.core.ansible_context import AnsibleContextProcessor, AnsibleFileType
+from ansible_ai_gateway.core.ansible_context import AnsibleContextProcessor, AnsibleFileType
 
 
 @pytest.fixture

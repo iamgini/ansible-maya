@@ -1,6 +1,6 @@
 # Example: OpenAI Provider Implementation with Spec-Kit
 
-This directory contains a **complete example** of using Spec-Kit for feature development in Ansible Sage.
+This directory contains a **complete example** of using Spec-Kit for feature development in Ansible AI Gateway.
 
 ## What's Included
 

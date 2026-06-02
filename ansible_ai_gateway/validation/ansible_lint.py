@@ -1,4 +1,4 @@
-# Copyright 2026 Ansible Sage Contributors
+# Copyright 2026 Ansible AI Gateway Contributors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ from typing import List, Optional
 
 import yaml
 
-from sage.core.exceptions import AnsibleLintError, YAMLValidationError
+from ansible_ai_gateway.core.exceptions import AnsibleLintError, YAMLValidationError
 
 
 @dataclass

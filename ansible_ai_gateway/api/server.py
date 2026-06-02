@@ -1,4 +1,4 @@
-# Copyright 2026 Ansible Sage Contributors
+# Copyright 2026 Ansible AI Gateway Contributors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,19 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""FastAPI application server for Ansible Sage."""
+"""FastAPI application server for Ansible AI Gateway."""
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 # Version info
-from sage import __version__
+from ansible_ai_gateway import __version__
 
 # Create FastAPI app
 app = FastAPI(
-    title="Ansible Sage",
-    description="Self-healing Ansible Generation Engine - AI-powered event-driven playbook generation",
+    title="Ansible AI Gateway",
+    description="Multi-provider AI gateway for Ansible playbook generation - AI-powered event-driven playbook generation",
     version=__version__,
     docs_url="/docs",
     redoc_url="/redoc",
@@ -44,7 +44,7 @@ app.add_middleware(
 async def root() -> dict:
     """Root endpoint with API information."""
     return {
-        "name": "Ansible Sage",
+        "name": "Ansible AI Gateway",
         "version": __version__,
         "description": "AI-powered event-driven Ansible playbook generation",
         "docs": "/docs",
@@ -81,7 +81,7 @@ async def readiness_check() -> JSONResponse:
 
 
 # API routes
-from sage.api.routes import events
+from ansible_ai_gateway.api.routes import events
 
 app.include_router(events.router, prefix="/api/v1/events", tags=["events"])
 

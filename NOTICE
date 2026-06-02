@@ -1,8 +1,8 @@
-Ansible Sage
-Copyright 2026 Ansible Sage Contributors
+Ansible AI Gateway
+Copyright 2026 Ansible AI Gateway Contributors
 
-This product includes software developed by the Ansible Sage project
-(https://github.com/your-org/ansible-sage).
+This product includes software developed by the Ansible AI Gateway project
+(https://github.com/your-org/ansible-ai-gateway).
 
 This product incorporates concepts and patterns from:
 - vscode-ansible (MIT License)

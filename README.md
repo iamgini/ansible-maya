@@ -1,13 +1,13 @@
-# Ansible Sage 🧙‍♂️
+# Ansible AI Gateway
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![Docker](https://img.shields.io/badge/docker-ready-blue.svg)](https://www.docker.com/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-**Self-healing Ansible Generation Engine** - AI-powered playbook generation and GitOps publishing for AIOps workflows.
+**Multi-provider AI gateway for Ansible playbook generation** - Supports watsonx, Claude, OpenAI, Ollama, and custom LLM providers.
 
-Ansible Sage automatically **generates**, **validates**, and **publishes** Ansible playbooks to Git repositories in response to infrastructure events. It does **NOT** execute playbooks - execution is handled by your existing automation pipeline (AAP, CI/CD, etc.).
+Ansible AI Gateway automatically **generates**, **validates**, and **publishes** Ansible playbooks to Git repositories in response to infrastructure events. Designed for AIOps workflows, event-driven automation, and programmatic playbook generation.
 
 ---
 
@@ -35,7 +35,7 @@ Infrastructure Event → Classification → Generation (LLM) → Validation (ans
 → Confidence Scoring → Git Publishing (branch based on confidence) → [Your Pipeline Executes]
 ```
 
-**Important**: Ansible Sage is a **generation and publishing service**. It does NOT execute playbooks. After publishing to Git, your existing automation pipeline (AAP, GitLab CI, Jenkins, etc.) handles execution with appropriate controls and approvals.
+**Important**: Ansible AI Gateway is a **generation and publishing service**. It does NOT execute playbooks. After publishing to Git, your existing automation pipeline (AAP, GitLab CI, Jenkins, etc.) handles execution with appropriate controls and approvals.
 
 See [WORKFLOW.md](WORKFLOW.md) for detailed workflow documentation.
 
@@ -54,8 +54,8 @@ See [WORKFLOW.md](WORKFLOW.md) for detailed workflow documentation.
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-org/ansible-sage.git
-cd ansible-sage
+git clone https://github.com/your-org/ansible-ai-gateway.git
+cd ansible-ai-gateway
 
 # Configure environment
 cp .env.example .env
@@ -71,7 +71,7 @@ docker-compose up -d
 docker-compose ps
 
 # View logs
-docker-compose logs -f ansible-sage
+docker-compose logs -f ansible-ai-gateway
 ```
 
 The API will be available at `http://localhost:8000`
@@ -139,7 +139,7 @@ The playbook is now committed to your Git repository and ready for your pipeline
 └────────────────────┬────────────────────────────────────┘
                      │
 ┌────────────────────▼────────────────────────────────────┐
-│            Ansible Sage Service                          │
+│            Ansible AI Gateway Service                          │
 │  ┌──────────────────────────────────────────────────┐  │
 │  │  Event Classifier                                │  │
 │  │  • Known vs Unknown event detection              │  │
@@ -204,8 +204,8 @@ GIT_TOKEN=ghp_YourPersonalAccessToken  # GitHub/GitLab PAT
 GIT_MAIN_BRANCH=main                   # High confidence target
 GIT_REVIEW_BRANCH=review               # Medium confidence target
 GIT_DRAFT_BRANCH=draft                 # Low confidence target
-GIT_USERNAME=ansible-sage-bot
-GIT_EMAIL=ansible-sage@example.com
+GIT_USERNAME=ansible-ai-gateway-bot
+GIT_EMAIL=ansible-ai-gateway@example.com
 GIT_AUTO_PUBLISH=false                 # Auto-push after generation
 
 # Optional: AAP Integration (for querying existing playbooks)
@@ -253,7 +253,7 @@ Confidence is calculated based on:
 
 ```bash
 # Generate playbook for disk cleanup
-ansible-sage generate \
+ansible-ai-gateway generate \
   --event-type disk_full \
   --description "Disk usage at 95% on /var" \
   --host web-server-01 \
@@ -261,21 +261,21 @@ ansible-sage generate \
   --output cleanup.yml
 
 # Validate a playbook
-ansible-sage validate cleanup.yml --fix
+ansible-ai-gateway validate cleanup.yml --fix
 
 # List supported event types
-ansible-sage list-events
+ansible-ai-gateway list-events
 
 # Start API server
-ansible-sage serve --port 8000 --reload
+ansible-ai-gateway serve --port 8000 --reload
 ```
 
 ### Example 2: Python API
 
 ```python
 import asyncio
-from sage.core.providers import get_provider
-from sage.handlers.orchestrator import (
+from ansible_ai_gateway.core.providers import get_provider
+from ansible_ai_gateway.handlers.orchestrator import (
     AIOpsEvent, EventSeverity, PlaybookOrchestrator
 )
 from datetime import datetime
@@ -352,7 +352,7 @@ curl -X POST http://localhost:8000/api/v1/events/publish-to-git \
 
 ### Example 4: Integration with AAP
 
-After Ansible Sage publishes to Git, configure AAP to execute:
+After Ansible AI Gateway publishes to Git, configure AAP to execute:
 
 ```yaml
 # AAP Project Configuration
@@ -376,11 +376,11 @@ After Ansible Sage publishes to Git, configure AAP to execute:
 
 ### Event-Driven Ansible (EDA)
 
-Forward events from EDA to Ansible Sage:
+Forward events from EDA to Ansible AI Gateway:
 
 ```yaml
 # eda-rulebook.yml
-- name: Forward alerts to Ansible Sage
+- name: Forward alerts to Ansible AI Gateway
   hosts: all
   sources:
     - ansible.eda.prometheus
@@ -393,7 +393,7 @@ Forward events from EDA to Ansible Sage:
       action:
         post_event:
           post_args:
-            url: "http://ansible-sage:8000/api/v1/events/generate"
+            url: "http://ansible-ai-gateway:8000/api/v1/events/generate"
             headers:
               Content-Type: "application/json"
             body:
@@ -408,9 +408,9 @@ Forward events from EDA to Ansible Sage:
 ```yaml
 # alertmanager.yml
 receivers:
-  - name: ansible-sage
+  - name: ansible-ai-gateway
     webhook_configs:
-      - url: 'http://ansible-sage:8000/api/v1/events/prometheus'
+      - url: 'http://ansible-ai-gateway:8000/api/v1/events/prometheus'
         send_resolved: true
 ```
 
@@ -473,7 +473,7 @@ uvicorn sage.api.server:app --reload
 ### Project Structure
 
 ```
-ansible-sage/
+ansible-ai-gateway/
 ├── sage/                       # Main application package
 │   ├── core/                   # Core business logic
 │   │   ├── ansible_context.py  # Ansible context processing
@@ -570,7 +570,7 @@ For security issues, please email security@your-domain.com instead of using the 
 
 - **[QUICKSTART.md](QUICKSTART.md)** - Get started in 5 minutes
 - **[WORKFLOW.md](WORKFLOW.md)** - Detailed workflow and integration guide
-- **[CLAUDE.md](CLAUDE.md)** - Developer guidance for extending Ansible Sage
+- **[CLAUDE.md](CLAUDE.md)** - Developer guidance for extending Ansible AI Gateway
 - **[CONTRIBUTING.md](CONTRIBUTING.md)** - Contribution guidelines
 - **[examples/](examples/)** - Usage examples and templates
 
@@ -611,8 +611,8 @@ This product incorporates concepts from [vscode-ansible](https://github.com/ansi
 
 ## 📞 Support
 
-- 💬 **Discussions**: [GitHub Discussions](https://github.com/your-org/ansible-sage/discussions)
-- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/your-org/ansible-sage/issues)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/your-org/ansible-ai-gateway/discussions)
+- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/your-org/ansible-ai-gateway/issues)
 - 📧 **Email**: support@your-domain.com
 - 📚 **Documentation**: See docs in this repository
 
@@ -631,6 +631,6 @@ This product incorporates concepts from [vscode-ansible](https://github.com/ansi
 
 ---
 
-**Made with ❤️ by the Ansible Sage team**
+**Made with ❤️ by the Ansible AI Gateway team**
 
-**Remember**: Ansible Sage generates and publishes playbooks to Git. Your existing pipeline (AAP, CI/CD, etc.) handles execution with appropriate controls and approvals. This separation ensures safety, auditability, and integration with your existing workflows.
+**Remember**: Ansible AI Gateway generates and publishes playbooks to Git. Your existing pipeline (AAP, CI/CD, etc.) handles execution with appropriate controls and approvals. This separation ensures safety, auditability, and integration with your existing workflows.

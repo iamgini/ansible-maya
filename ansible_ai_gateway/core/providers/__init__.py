@@ -1,4 +1,4 @@
-# Copyright 2026 Ansible Sage Contributors
+# Copyright 2026 Ansible AI Gateway Contributors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,15 +14,15 @@
 
 """LLM Provider package - supports multiple AI model providers."""
 
-from sage.core.providers.base import (
+from ansible_ai_gateway.core.providers.base import (
     BaseLLMProvider,
     GenerationRequest,
     GenerationResponse,
     ModelTier,
     ProviderStatus,
 )
-from sage.core.providers.claude import ClaudeProvider
-from sage.core.providers.custom import CustomProvider
+from ansible_ai_gateway.core.providers.claude import ClaudeProvider
+from ansible_ai_gateway.core.providers.custom import CustomProvider
 
 __all__ = [
     "BaseLLMProvider",

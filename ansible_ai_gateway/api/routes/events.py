@@ -1,4 +1,4 @@
-# Copyright 2026 Ansible Sage Contributors
+# Copyright 2026 Ansible AI Gateway Contributors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,9 +21,9 @@ from typing import List, Optional
 from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel, Field
 
-from sage.core.exceptions import PlaybookGenerationError, ValidationError
-from sage.core.providers import get_provider
-from sage.handlers.orchestrator import (
+from ansible_ai_gateway.core.exceptions import PlaybookGenerationError, ValidationError
+from ansible_ai_gateway.core.providers import get_provider
+from ansible_ai_gateway.handlers.orchestrator import (
     AIOpsEvent,
     AutomationMode,
     EventSeverity,
@@ -304,7 +304,7 @@ async def publish_playbook_to_git(request: GitPublishRequest):
     - Medium confidence (50-80%): review branch
     - Low confidence (<50%): draft branch
     """
-    from sage.integrations.git_publisher import GitConfig, GitPublisher
+    from ansible_ai_gateway.integrations.git_publisher import GitConfig, GitPublisher
 
     # Create Git config
     git_config = GitConfig(

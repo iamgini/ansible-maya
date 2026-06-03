@@ -15,17 +15,16 @@ Ansible Maya automatically **generates**, **validates**, and **publishes** Ansib
 
 ## ✨ Features
 
-- 🤖 **AI-Powered Generation**: Leverages LLMs (Claude, GPT-4, Ollama) to generate production-ready playbooks
-- 🔄 **Event-Driven Architecture**: Responds to infrastructure events (disk full, service down, high CPU, etc.)
+- 🤖 **AI-Powered Generation**: Leverages LLMs (Claude or custom) to generate production-ready playbooks
+- 📝 **Event-Aware Generation**: Generates playbooks based on infrastructure event context (disk full, service down, high CPU, etc.)
 - ✅ **Intelligent Validation**: Automatic ansible-lint checking with auto-fix capabilities
-- 📊 **Confidence-Based Publishing**: 
-  - **High Confidence (≥80%)**: Push to `main` branch - production-ready
-  - **Medium Confidence (50-80%)**: Push to `review` branch - needs human approval
-  - **Low Confidence (<50%)**: Push to `draft` branch - experimental/testing required
-- 🔌 **GitOps Workflow**: Commits generated playbooks to Git for your pipeline to execute
+- 📊 **Confidence-Based Recommendations**: 
+  - **High Confidence (≥80%)**: Production-ready for execution
+  - **Medium Confidence (50-80%)**: Human review recommended
+  - **Low Confidence (<50%)**: Testing required before execution
 - 🎯 **Ansible Best Practices**: Built-in prompt engineering for FQCN-compliant, idempotent playbooks
-- 🏗️ **BYOM (Bring Your Own Model)**: Pluggable LLM providers - use Claude, OpenAI, Ollama, or custom models
-- 🏢 **AAP Integration**: Optional queries to check existing job templates before generation
+- 🏗️ **BYOM (Bring Your Own Model)**: Pluggable LLM providers - use Claude or custom OpenAI-compatible models
+- 🔌 **REST API & CLI**: Easy integration into your existing automation workflows
 - 🔍 **Multi-Mode Classification**: Automatically categorizes events as known, complex, or unknown
 
 ---
@@ -33,11 +32,16 @@ Ansible Maya automatically **generates**, **validates**, and **publishes** Ansib
 ## 🎯 Core Workflow
 
 ```
-Infrastructure Event → Classification → Generation (LLM) → Validation (ansible-lint) 
-→ Confidence Scoring → Git Publishing (branch based on confidence) → [Your Pipeline Executes]
+[Your Tool/Playbook] → API Call with Event Context → Classification → Generation (LLM) 
+→ Validation (ansible-lint) → Confidence Scoring → Playbook Response
 ```
 
-**Important**: Ansible Maya is a **generation and publishing service**. It does NOT execute playbooks. After publishing to Git, your existing automation pipeline (AAP, GitLab CI, Jenkins, etc.) handles execution with appropriate controls and approvals.
+**Important**: Ansible Maya is a **playbook generation API**. Your tools call Maya's API with event context, receive generated playbooks, and then decide how to execute them. Maya does NOT:
+- Listen to monitoring systems directly
+- Execute playbooks
+- Store playbooks (unless you implement that)
+
+You integrate Maya into your existing automation pipeline (Event-Driven Ansible, AAP workflows, custom scripts, etc.).
 
 See [WORKFLOW.md](WORKFLOW.md) for detailed workflow documentation.
 
@@ -49,8 +53,7 @@ See [WORKFLOW.md](WORKFLOW.md) for detailed workflow documentation.
 
 - Docker & Docker Compose
 - Python 3.11+ (for local development)
-- Git repository for storing generated playbooks
-- API key for your chosen LLM provider (Claude, OpenAI, etc.)
+- API key for your chosen LLM provider (Claude or custom OpenAI-compatible)
 
 ### Run with Docker Compose
 
@@ -62,9 +65,8 @@ cd ansible-maya
 # Configure environment
 cp .env.example .env
 # Edit .env and configure:
-#   - ANTHROPIC_API_KEY or OPENAI_API_KEY
-#   - GIT_REPO_URL (your playbooks repository)
-#   - GIT_TOKEN (GitHub/GitLab Personal Access Token)
+#   - ANTHROPIC_API_KEY (for Claude)
+#   - Or CUSTOM_LLM_ENDPOINT for custom providers
 
 # Start services
 docker-compose up -d
@@ -104,31 +106,12 @@ Response includes:
   "playbook": "--- (playbook YAML content)",
   "confidence_score": 0.85,
   "confidence_level": "high",
-  "target_branch": "main",
   "validation_passed": true,
-  "recommended_action": "✓ High confidence (85%). Safe to push to 'main' branch."
+  "recommended_action": "✓ High confidence (85%). Production ready - safe to execute."
 }
 ```
 
-### Publish to Git
-
-```bash
-# Automatically publish (if GIT_AUTO_PUBLISH=true in .env)
-# OR manually via API:
-
-curl -X POST http://localhost:8000/api/v1/events/publish-to-git \
-  -H "Content-Type: application/json" \
-  -d '{
-    "event_id": "evt-123456",
-    "playbook": "...(playbook content)...",
-    "confidence_score": 0.85,
-    "metadata": {"event_type": "disk_full", "host": "web-01"},
-    "git_repo_url": "https://github.com/your-org/playbooks.git",
-    "git_token": "ghp_YourToken"
-  }'
-```
-
-The playbook is now committed to your Git repository and ready for your pipeline to execute!
+The generated playbook is returned in the response and can be saved, integrated into your automation pipeline, or executed directly!
 
 ---
 
@@ -136,12 +119,15 @@ The playbook is now committed to your Git repository and ready for your pipeline
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                 Event Sources                            │
-│  (Prometheus, EDA, Nagios, Zabbix, Custom Webhooks)     │
+│            Your Event-Driven System                      │
+│  (EDA Rulebook, AAP Workflow, Custom Script, etc.)     │
+│  • Receives events from monitoring                      │
+│  • Calls Maya API with event context                    │
 └────────────────────┬────────────────────────────────────┘
+                     │ HTTP POST /api/v1/events/generate
                      │
 ┌────────────────────▼────────────────────────────────────┐
-│            Ansible Maya Service                          │
+│            Ansible Maya API Service                      │
 │  ┌──────────────────────────────────────────────────┐  │
 │  │  Event Classifier                                │  │
 │  │  • Known vs Unknown event detection              │  │
@@ -151,7 +137,7 @@ The playbook is now committed to your Git repository and ready for your pipeline
 │                   │                                      │
 │  ┌────────────────▼─────────────────────────────────┐  │
 │  │  Playbook Generator                              │  │
-│  │  • LLM provider (Claude/GPT/Ollama)             │  │
+│  │  • LLM provider (Claude or custom)               │  │
 │  │  • Ansible-specific prompt engineering          │  │
 │  │  • FQCN enforcement & best practices            │  │
 │  └────────────────┬─────────────────────────────────┘  │
@@ -161,31 +147,29 @@ The playbook is now committed to your Git repository and ready for your pipeline
 │  │  • ansible-lint (with auto-fix)                 │  │
 │  │  • YAML syntax validation                       │  │
 │  │  • Security checks                              │  │
+│  │  • Confidence scoring                           │  │
 │  └────────────────┬─────────────────────────────────┘  │
 │                   │                                      │
 │  ┌────────────────▼─────────────────────────────────┐  │
-│  │  Git Publisher                                   │  │
-│  │  • Confidence-based branch selection            │  │
-│  │  • Commit with metadata                         │  │
-│  │  • Push to remote repository                    │  │
+│  │  Response Builder                                │  │
+│  │  • Generated playbook                           │  │
+│  │  • Confidence level & score                     │  │
+│  │  • Validation results                           │  │
+│  │  • Execution recommendation                     │  │
 │  └──────────────────────────────────────────────────┘  │
 └────────────────────┬────────────────────────────────────┘
+                     │ Returns JSON with playbook
                      │
 ┌────────────────────▼────────────────────────────────────┐
-│              Git Repository                              │
-│  main/     - High confidence playbooks                   │
-│  review/   - Medium confidence (needs approval)          │
-│  draft/    - Low confidence (testing required)           │
-└────────────────────┬────────────────────────────────────┘
-                     │
-┌────────────────────▼────────────────────────────────────┐
-│         Your Execution Pipeline                          │
-│  (AAP/AWX, GitLab CI, Jenkins, GitHub Actions, etc.)   │
+│         Your Execution Logic                             │
+│  • Save playbook (optional)                             │
+│  • Review if needed (medium/low confidence)             │
+│  • Execute via ansible-playbook, AAP, etc.              │
 │  • You control when/how playbooks execute               │
-│  • Human approval for medium/low confidence             │
-│  • Integration with existing automation                 │
 └──────────────────────────────────────────────────────────┘
 ```
+
+**Key Point**: Ansible Maya is a **REST API service**, not an event listener. Your automation calls Maya when needed.
 
 ---
 
@@ -195,25 +179,17 @@ The playbook is now committed to your Git repository and ready for your pipeline
 
 ```bash
 # LLM Provider Configuration
-LLM_PROVIDER=claude                    # claude, openai, ollama, custom
+LLM_PROVIDER=claude                    # claude, custom
 ANTHROPIC_API_KEY=sk-ant-...           # For Claude
-OPENAI_API_KEY=sk-...                  # For OpenAI
-OLLAMA_BASE_URL=http://localhost:11434 # For Ollama (local)
+# For custom OpenAI-compatible providers:
+# LLM_PROVIDER=custom
+# CUSTOM_API_BASE_URL=http://your-api.com
+# CUSTOM_API_KEY=your-key
 
-# Git Repository Configuration
-GIT_REPO_URL=https://github.com/your-org/ansible-playbooks.git
-GIT_TOKEN=ghp_YourPersonalAccessToken  # GitHub/GitLab PAT
-GIT_MAIN_BRANCH=main                   # High confidence target
-GIT_REVIEW_BRANCH=review               # Medium confidence target
-GIT_DRAFT_BRANCH=draft                 # Low confidence target
-GIT_USERNAME=ansible-maya-bot
-GIT_EMAIL=ansible-maya@example.com
-GIT_AUTO_PUBLISH=false                 # Auto-push after generation
-
-# Optional: AAP Integration (for querying existing playbooks)
-AAP_URL=https://aap.example.com
-AAP_TOKEN=your-aap-token
-AAP_VERIFY_SSL=true
+# Optional: AAP Integration (architecture ready, implementation in progress)
+# AAP_URL=https://aap.example.com
+# AAP_TOKEN=your-aap-token
+# AAP_VERIFY_SSL=true
 
 # Service Configuration
 SAGE_LOG_LEVEL=INFO
@@ -241,11 +217,11 @@ Confidence is calculated based on:
 
 ### Branch Strategy
 
-| Confidence | Score | Branch | Action |
-|-----------|-------|--------|--------|
-| High | ≥ 80% | `main` | Production-ready, can be auto-deployed |
-| Medium | 50-80% | `review` | Requires human review before merge |
-| Low | < 50% | `draft` | Experimental, requires testing |
+| Confidence | Score | Recommendation |
+|-----------|-------|----------------|
+| High | ≥ 80% | Production-ready, safe to execute |
+| Medium | 50-80% | Human review recommended |
+| Low | < 50% | Testing required before execution |
 
 ---
 
@@ -305,7 +281,7 @@ async def generate_playbook():
     
     # Display results
     print(f"Confidence: {response.confidence_score:.0%}")
-    print(f"Target Branch: {response.target_branch}")
+    print(f"Confidence Level: {response.confidence_level}")
     print(f"Validation: {'Passed' if response.validation_result.passed else 'Failed'}")
     print(f"\nPlaybook:\n{response.playbook}")
     
@@ -315,7 +291,7 @@ async def generate_playbook():
 asyncio.run(generate_playbook())
 ```
 
-### Example 3: REST API with Git Publishing
+### Example 3: REST API Integration
 
 ```bash
 # 1. Generate playbook
@@ -328,61 +304,51 @@ RESPONSE=$(curl -s -X POST http://localhost:8000/api/v1/events/generate \
     "severity": "critical"
   }')
 
-# 2. Extract details
+# 2. Extract and display details
 EVENT_ID=$(echo $RESPONSE | jq -r '.event_id')
 PLAYBOOK=$(echo $RESPONSE | jq -r '.playbook')
 CONFIDENCE=$(echo $RESPONSE | jq -r '.confidence_score')
+CONFIDENCE_LEVEL=$(echo $RESPONSE | jq -r '.confidence_level')
 
+echo "Event ID: $EVENT_ID"
 echo "Confidence: $(echo $CONFIDENCE | jq '. * 100')%"
+echo "Level: $CONFIDENCE_LEVEL"
 echo "Recommended: $(echo $RESPONSE | jq -r '.recommended_action')"
 
-# 3. Publish to Git
-curl -X POST http://localhost:8000/api/v1/events/publish-to-git \
-  -H "Content-Type: application/json" \
-  -d "{
-    \"event_id\": \"$EVENT_ID\",
-    \"playbook\": $(echo \"$PLAYBOOK\" | jq -Rs .),
-    \"confidence_score\": $CONFIDENCE,
-    \"metadata\": {
-      \"event_type\": \"service_down\",
-      \"host\": \"web-server-02\"
-    },
-    \"git_repo_url\": \"https://github.com/your-org/playbooks.git\",
-    \"git_token\": \"$GIT_TOKEN\"
-  }"
+# 3. Save playbook to file
+echo "$PLAYBOOK" > "playbook_${EVENT_ID}.yml"
+echo "Playbook saved to playbook_${EVENT_ID}.yml"
 ```
 
 ### Example 4: Integration with AAP
 
-After Ansible Maya publishes to Git, configure AAP to execute:
+After generating a playbook with Ansible Maya, you can execute it via AAP:
 
-```yaml
-# AAP Project Configuration
-- name: Generated Playbooks
-  scm_type: git
-  scm_url: https://github.com/your-org/ansible-playbooks.git
-  scm_branch: main  # For high-confidence playbooks
-  scm_update_on_launch: true
+```bash
+# 1. Generate playbook via Ansible Maya
+# 2. Save playbook to your AAP project repository
+# 3. Execute via AAP job template or awx CLI
 
-# Job Template
-- name: Execute Generated Playbook
-  project: Generated Playbooks
-  playbook: playbooks/generated/latest.yml
-  inventory: Production
-  # Add appropriate credentials and limits
+# Example: Execute via awx CLI
+awx job_template launch \
+  --name "Execute Generated Playbook" \
+  --extra_vars "{\"playbook_content\": \"$(cat playbook.yml)\"}" \
+  --inventory Production
 ```
 
 ---
 
-## 🔌 Integrations
+## 🔌 Integration Examples
+
+**Important**: Ansible Maya doesn't listen to monitoring systems directly. Your automation calls Maya's API.
 
 ### Event-Driven Ansible (EDA)
 
-Forward events from EDA to Ansible Maya:
+Use EDA to receive monitoring events and call Maya's API:
 
 ```yaml
 # eda-rulebook.yml
-- name: Forward alerts to Ansible Maya
+- name: Generate playbooks via Maya on alerts
   hosts: all
   sources:
     - ansible.eda.prometheus
@@ -390,61 +356,69 @@ Forward events from EDA to Ansible Maya:
       port: 8001
   
   rules:
-    - name: Disk space critical
+    - name: Disk space critical - call Maya
       condition: event.alert_name == "DiskSpaceCritical"
       action:
-        post_event:
-          post_args:
-            url: "http://ansible-maya:8000/api/v1/events/generate"
-            headers:
-              Content-Type: "application/json"
-            body:
-              event_type: "disk_full"
-              host: "{{ event.instance }}"
-              severity: "high"
-              description: "{{ event.annotations.description }}"
+        run_playbook:
+          name: call_maya_api.yml
+          extra_vars:
+            event_type: "disk_full"
+            host: "{{ event.instance }}"
+            severity: "high"
+            description: "{{ event.annotations.description }}"
 ```
 
-### Prometheus AlertManager
-
 ```yaml
-# alertmanager.yml
-receivers:
-  - name: ansible-maya
-    webhook_configs:
-      - url: 'http://ansible-maya:8000/api/v1/events/prometheus'
-        send_resolved: true
+# call_maya_api.yml
+- name: Call Ansible Maya to generate remediation playbook
+  hosts: localhost
+  tasks:
+    - name: Call Maya API
+      uri:
+        url: "http://ansible-maya:8000/api/v1/events/generate"
+        method: POST
+        body_format: json
+        body:
+          event_type: "{{ event_type }}"
+          host: "{{ host }}"
+          severity: "{{ severity }}"
+          description: "{{ description }}"
+      register: maya_response
+    
+    - name: Save generated playbook
+      copy:
+        content: "{{ maya_response.json.playbook }}"
+        dest: "/tmp/generated-{{ event_type }}.yml"
+    
+    - name: Execute if high confidence
+      when: maya_response.json.confidence_level == "high"
+      shell: ansible-playbook /tmp/generated-{{ event_type }}.yml
 ```
 
-### GitLab CI/CD Execution
+### AAP Workflow Template
+
+Call Maya from an AAP workflow:
 
 ```yaml
-# .gitlab-ci.yml in your playbooks repository
-stages:
-  - validate
-  - test
-  - deploy
-
-lint:
-  stage: validate
-  script:
-    - ansible-lint playbooks/generated/*.yml
-
-test:
-  stage: test
-  only:
-    - review
-    - draft
-  script:
-    - molecule test
-
-deploy-production:
-  stage: deploy
-  only:
-    - main
-  when: manual  # Or automatic based on your risk tolerance
-  script:
-    - ansible-playbook -i production playbooks/generated/*.yml
+# AAP Workflow Template
+- name: Incident Response via Maya
+  workflow_nodes:
+    - name: Call Maya API
+      unified_job_template: "Call API Job Template"
+      extra_data:
+        maya_url: "http://ansible-maya:8000/api/v1/events/generate"
+        event_data:
+          event_type: "{{ event_type }}"
+          host: "{{ target_host }}"
+          severity: "{{ severity }}"
+      
+    - name: Review Generated Playbook
+      unified_job_template: "Manual Approval"
+      when: "{{ confidence_level != 'high' }}"
+      
+    - name: Execute Remediation
+      unified_job_template: "Execute Dynamic Playbook"
+      when: approved
 ```
 
 ---
@@ -476,28 +450,27 @@ uvicorn sage.api.server:app --reload
 
 ```
 ansible-maya/
-├── sage/                       # Main application package
+├── ansible_maya/               # Main application package
 │   ├── core/                   # Core business logic
 │   │   ├── ansible_context.py  # Ansible context processing
+│   │   ├── session_context.py  # Session management
 │   │   ├── providers/          # LLM provider implementations
 │   │   │   ├── base.py         # Base provider interface
-│   │   │   ├── claude.py       # Claude/Anthropic
-│   │   │   ├── openai.py       # OpenAI/GPT (to be implemented)
-│   │   │   └── ollama.py       # Ollama (to be implemented)
+│   │   │   ├── claude.py       # Claude/Anthropic (implemented)
+│   │   │   └── custom.py       # Custom OpenAI-compatible providers
 │   │   ├── prompt_templates.py # System prompts
 │   │   └── exceptions.py       # Custom exceptions
 │   ├── handlers/               # Event handlers
 │   │   └── orchestrator.py     # Main orchestration logic
 │   ├── validation/             # Validation tools
-│   │   ├── ansible_lint.py     # ansible-lint integration
-│   │   └── molecule_runner.py  # Molecule testing (future)
-│   ├── integrations/           # External integrations
-│   │   ├── git_publisher.py    # Git repository publishing
-│   │   └── aap_client.py       # AAP integration (future)
+│   │   └── ansible_lint.py     # ansible-lint integration
+│   ├── integrations/           # External integrations (AAP, etc.)
 │   ├── api/                    # FastAPI application
 │   │   ├── server.py           # Main FastAPI app
 │   │   └── routes/
 │   │       └── events.py       # Event endpoints
+│   ├── workers/                # Background workers
+│   ├── utils/                  # Utility functions
 │   └── cli.py                  # Command-line interface
 ├── tests/                      # Test suite
 │   ├── unit/
@@ -543,11 +516,11 @@ pytest tests/unit/core/test_ansible_context.py -v
 ```bash
 # Format code
 make format
-# Or: black sage/ tests/ && isort sage/ tests/
+# Or: black ansible_maya/ tests/ && isort ansible_maya/ tests/
 
 # Lint
 make lint
-# Or: ruff check sage/ tests/ && mypy sage/
+# Or: ruff check ansible_maya/ tests/ && mypy ansible_maya/
 
 # Run all pre-commit hooks
 pre-commit run --all-files
@@ -558,11 +531,11 @@ pre-commit run --all-files
 ## 🔒 Security
 
 - **Never commit secrets**: Use environment variables or secret management
-- **Git token security**: Store `GIT_TOKEN` securely, rotate regularly
+- **API key security**: Store LLM API keys securely, rotate regularly
 - **Input validation**: All event payloads validated with Pydantic
 - **Audit trail**: All generations logged with full metadata
-- **Code review**: Medium/low confidence playbooks require review before merge
-- **Branch protection**: Protect `main` branch with required reviews
+- **Code review**: Medium/low confidence playbooks require human review before execution
+- **Validation**: Always validate generated playbooks before execution
 
 For security issues, please email security@your-domain.com instead of using the issue tracker.
 
@@ -622,17 +595,35 @@ This product incorporates concepts from [vscode-ansible](https://github.com/ansi
 
 ## 🎯 Roadmap
 
-- [ ] OpenAI provider implementation
-- [ ] Ollama (local LLM) provider
-- [ ] Molecule testing integration
+### In Progress
+- [ ] Integration tests suite expansion
 - [ ] AAP catalog search before generation
-- [ ] Pull request auto-creation for medium/low confidence
+
+### Planned Features
+- [ ] **Spec-Kit Integration**: Generate execution plan/specification before playbook for review
+  - Lightweight mode: Add `execution_plan` field to response showing steps in plain English
+  - Full mode: Two-phase generation (spec approval → playbook generation)
+  - Conditional: Use spec-driven approach for high-risk/unknown events only
+- [ ] OpenAI provider (native implementation)
+- [ ] Ollama (local LLM) provider
+- [ ] Molecule testing integration for generated playbooks
 - [ ] Metrics and observability dashboard
 - [ ] Multi-language support for event descriptions
-- [ ] Custom prompt template editor
+- [ ] Custom prompt template editor UI
+
+### Current Status
+- ✅ Claude provider fully implemented
+- ✅ Custom OpenAI-compatible provider support
+- ✅ Confidence-based recommendations
+- ✅ ansible-lint validation with auto-fix
+- ✅ Event context classification
+- ✅ CLI and REST API
+- ✅ Session context management
+- 🔄 Comprehensive integration tests
+- 🔄 Example integration playbooks
 
 ---
 
 **Made with ❤️ by the Ansible Maya team**
 
-**Remember**: Ansible Maya generates and publishes playbooks to Git. Your existing pipeline (AAP, CI/CD, etc.) handles execution with appropriate controls and approvals. This separation ensures safety, auditability, and integration with your existing workflows.
+**Remember**: Ansible Maya is a **generation API**, not an event listener. Your automation (EDA rulebooks, AAP workflows, custom scripts) calls Maya's API when it detects events. Maya generates playbooks with confidence scoring and validation, then returns them. You control when and how to execute them. This separation ensures safety, flexibility, and integration with your existing workflows.

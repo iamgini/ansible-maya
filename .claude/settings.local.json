@@ -21,7 +21,10 @@
       "Bash(gh repo *)",
       "Bash(gh api *)",
       "Bash(cat)",
-      "Read(//tmp/**)"
+      "Read(//tmp/**)",
+      "Bash(grep -E \"\\\\.\\(py\\)$\")",
+      "Bash(/tmp/verify_gitops_removal.sh)",
+      "Bash(grep -E \"\\\\.\\(md|txt\\)$\")"
     ]
   }
 }

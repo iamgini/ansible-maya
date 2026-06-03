@@ -69,7 +69,6 @@ class PlaybookGenerationResponse(BaseModel):
     mode: str
     confidence_score: float
     confidence_level: str
-    target_branch: str
     requires_approval: bool
     recommended_action: str
     validation_passed: bool
@@ -192,7 +191,6 @@ async def generate_playbook_from_event(request: EventRequest):
         mode=response.mode.value,
         confidence_score=response.confidence_score,
         confidence_level=response.confidence_level,
-        target_branch=response.target_branch,
         requires_approval=response.requires_approval,
         recommended_action=response.recommended_action,
         validation_passed=response.validation_result.passed,
@@ -252,87 +250,16 @@ async def list_event_types():
         "known_safe_events": list(PlaybookOrchestrator.KNOWN_SAFE_EVENTS),
         "approval_required_events": list(PlaybookOrchestrator.APPROVAL_REQUIRED_EVENTS),
         "automation_modes": {
-            "auto": "High confidence - push to main branch",
-            "approval": "Medium confidence - push to review branch",
-            "collaborative": "Low confidence - push to draft branch",
+            "auto": "High confidence - automated execution",
+            "approval": "Medium confidence - requires approval",
+            "collaborative": "Low confidence - human collaboration needed",
         },
         "confidence_levels": {
-            "high": ">=80% - Safe for main branch",
-            "medium": "50-80% - Needs review before merge",
-            "low": "<50% - Draft/experimental, requires testing",
+            "high": ">=80% - Production ready",
+            "medium": "50-80% - Review recommended",
+            "low": "<50% - Testing required",
         },
         "severity_levels": [s.value for s in EventSeverity],
     }
 
 
-class GitPublishRequest(BaseModel):
-    """Request model for publishing playbook to Git."""
-
-    event_id: str = Field(..., description="Event ID from generation response")
-    playbook: str = Field(..., description="Playbook content to publish")
-    confidence_score: float = Field(..., description="Confidence score (0.0-1.0)")
-    metadata: dict = Field(..., description="Event metadata for commit message")
-    git_repo_url: str = Field(..., description="Git repository URL")
-    git_main_branch: str = Field(default="main", description="Main branch name")
-    git_username: Optional[str] = Field(default=None, description="Git username")
-    git_email: Optional[str] = Field(default=None, description="Git email")
-    git_token: Optional[str] = Field(default=None, description="Git auth token (PAT)")
-
-
-class GitPublishResponse(BaseModel):
-    """Response model for Git publish operation."""
-
-    success: bool
-    branch: str
-    commit_sha: Optional[str]
-    file_path: Optional[str]
-    error: Optional[str]
-
-
-@router.post(
-    "/publish-to-git",
-    response_model=GitPublishResponse,
-    summary="Publish playbook to Git repository",
-    description="Push generated playbook to Git repository based on confidence level",
-)
-async def publish_playbook_to_git(request: GitPublishRequest):
-    """
-    Publish generated playbook to Git repository.
-
-    The playbook will be pushed to different branches based on confidence:
-    - High confidence (>=80%): main branch
-    - Medium confidence (50-80%): review branch
-    - Low confidence (<50%): draft branch
-    """
-    from ansible_maya.integrations.git_publisher import GitConfig, GitPublisher
-
-    # Create Git config
-    git_config = GitConfig(
-        repo_url=request.git_repo_url,
-        main_branch=request.git_main_branch,
-        username=request.git_username,
-        email=request.git_email,
-        token=request.git_token,
-    )
-
-    # Generate playbook name from metadata
-    event_type = request.metadata.get("event_type", "playbook")
-    host = request.metadata.get("host", "host").replace(".", "_")
-    playbook_name = f"{event_type}_{host}.yml"
-
-    # Publish
-    publisher = GitPublisher(git_config)
-    result = await publisher.publish_playbook(
-        playbook_content=request.playbook,
-        playbook_name=playbook_name,
-        confidence=request.confidence_score,
-        metadata=request.metadata,
-    )
-
-    return GitPublishResponse(
-        success=result.success,
-        branch=result.branch,
-        commit_sha=result.commit_sha,
-        file_path=result.file_path,
-        error=result.error,
-    )

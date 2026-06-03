@@ -2,14 +2,23 @@
 
 ## Overview
 
-**Ansible Maya generates playbooks and pushes them to Git. It does NOT execute playbooks.**
+**Ansible Maya is a REST API service that generates playbooks on demand. It does NOT:**
+- Listen to monitoring systems directly
+- Execute playbooks
+- Store events or playbooks
 
-The system follows a GitOps workflow where generated playbooks are committed to a Git repository for review, testing, and eventual execution through your existing automation pipeline (AAP, Jenkins, GitLab CI, etc.).
+**Your automation calls Maya's API** when it detects infrastructure events. Maya generates validated playbooks with confidence scoring and returns them via API response. You decide what to do with the generated playbooks (save, review, execute, etc.).
 
 ## Core Workflow
 
 ```
-Infrastructure Event
+Infrastructure Event (in YOUR system)
+       ↓
+Your Automation (EDA, AAP, Script) detects event
+       ↓
+HTTP POST to Maya API with event context
+       ↓
+[--- Inside Ansible Maya API ---]
        ↓
 Event Classification
        ↓
@@ -19,16 +28,16 @@ Validation (ansible-lint)
        ↓
 Confidence Scoring
        ↓
-Git Publishing (branch based on confidence)
+[--- End of Maya API ---]
        ↓
-[Your CI/CD Pipeline]
+JSON Response with playbook returned
        ↓
-[Manual Review if needed]
+Your automation receives response
        ↓
-[Execution via AAP/AWX/ansible-playbook]
+[You save/review/execute as needed]
 ```
 
-## Confidence-Based Branching
+## Confidence-Based Recommendations
 
 Ansible Maya calculates a confidence score (0.0 - 1.0) for each generated playbook based on:
 
@@ -37,36 +46,40 @@ Ansible Maya calculates a confidence score (0.0 - 1.0) for each generated playbo
 - Event severity
 - Automation mode classification
 
-### Branching Strategy
+### Recommendation Strategy
 
-| Confidence Level | Score Range | Target Branch | Action Required |
-|-----------------|-------------|---------------|-----------------|
-| **High** | ≥ 80% | `main` | Can be deployed directly |
-| **Medium** | 50-80% | `review` | Human review before merge to main |
-| **Low** | < 50% | `draft` | Testing and validation required |
+| Confidence Level | Score Range | Recommendation |
+|-----------------|-------------|----------------|
+| **High** | ≥ 80% | Production-ready, safe to execute |
+| **Medium** | 50-80% | Human review recommended before execution |
+| **Low** | < 50% | Testing and validation required |
 
-### Example Git Structure
+### Example Response Structure
 
-```
-your-ansible-playbooks-repo/
-├── playbooks/
-│   └── generated/
-│       ├── 20260602-143022_disk_full_web01.yml     (main branch)
-│       ├── 20260602-145510_service_down_db01.yml   (review branch)
-│       └── 20260602-150320_unknown_app02.yml       (draft branch)
+```json
+{
+  "event_id": "evt-123456",
+  "playbook": "---\n- name: Fix disk space...",
+  "confidence_score": 0.85,
+  "confidence_level": "high",
+  "requires_approval": false,
+  "recommended_action": "✓ High confidence (85%). Production ready - safe to execute.",
+  "validation_passed": true,
+  "validation_issues": []
+}
 ```
 
 ## Detailed Workflow
 
-### 1. Event Reception
+### 1. Your System Calls Maya API
 
-Events can come from:
-- Monitoring systems (Prometheus Alertmanager, Nagios, Zabbix)
-- Event-Driven Ansible (EDA)
-- Direct API calls
-- CLI invocation
+Maya is called via HTTP POST to `/api/v1/events/generate` by:
+- **Event-Driven Ansible rulebooks** (when alerts trigger)
+- **AAP workflow templates** (as a job step)
+- **Custom scripts** (Python, Bash, etc.)
+- **CLI** (for testing/manual use)
 
-Example event:
+Example API request payload:
 ```json
 {
   "event_type": "disk_full",
@@ -160,8 +173,7 @@ Calculates confidence based on:
 | Known safe event | +20% |
 | Each validation issue | -5% |
 
-### 6. Git Publishing
-
+### 6. Playbook Output
 #### Configuration
 
 Set in `.env`:
@@ -214,33 +226,27 @@ event_id=$(echo $response | jq -r '.event_id')
 playbook=$(echo $response | jq -r '.playbook')
 confidence=$(echo $response | jq -r '.confidence_score')
 
-# Publish to Git
-curl -X POST http://localhost:8000/api/v1/events/publish-to-git \
-  -H "Content-Type: application/json" \
-  -d "{
-    \"event_id\": \"$event_id\",
-    \"playbook\": $(echo $playbook | jq -Rs .),
-    \"confidence_score\": $confidence,
-    \"metadata\": {
-      \"event_type\": \"disk_full\",
-      \"host\": \"web-01\"
-    },
-    \"git_repo_url\": \"https://github.com/your-org/ansible-playbooks.git\",
-    \"git_token\": \"ghp_YourToken\"
-  }"
+# Save playbook to file
+echo "$playbook" > "generated-playbook-${event_id}.yml"
+echo "Saved to generated-playbook-${event_id}.yml"
+echo "Confidence: $confidence"
 ```
 
 ## Execution Pipeline (Your Responsibility)
 
-After Ansible Maya pushes to Git, **you** control execution:
+After Ansible Maya generates a playbook, **you** control execution:
 
 ### Option 1: AAP/AWX Integration
 
-```yaml
-# AAP Project pointed at your playbooks repo
-# Job Template watches specific branches
-# High confidence (main branch) → auto-execute
-# Medium/low confidence → manual approval
+```bash
+# Save generated playbook
+echo "$playbook" > playbook.yml
+
+# Execute via AWX CLI
+awx job_template launch \
+  --name "Execute Generated Playbook" \
+  --extra_vars "@playbook.yml" \
+  --inventory Production
 ```
 
 ### Option 2: GitLab CI/CD

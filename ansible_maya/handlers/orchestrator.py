@@ -87,7 +87,6 @@ class PlaybookResponse:
     confidence_level: str  # "high", "medium", "low"
     requires_approval: bool = False
     recommended_action: Optional[str] = None
-    target_branch: Optional[str] = None  # Recommended Git branch
 
 
 class PlaybookOrchestrator:
@@ -206,7 +205,6 @@ class PlaybookOrchestrator:
             event, mode, validation_result, generation_metadata
         )
         confidence_level = self._get_confidence_level(confidence_score)
-        target_branch = self._get_target_branch(confidence_level)
 
         # Determine if approval is required
         requires_approval = mode != AutomationMode.AUTO or event.severity in (
@@ -229,7 +227,6 @@ class PlaybookOrchestrator:
             confidence_level=confidence_level,
             requires_approval=requires_approval,
             recommended_action=recommended_action,
-            target_branch=target_branch,
         )
 
     def _classify_event(self, event: AIOpsEvent) -> AutomationMode:
@@ -430,15 +427,6 @@ class PlaybookOrchestrator:
         else:
             return "low"
 
-    def _get_target_branch(self, confidence_level: str, main_branch: str = "main") -> str:
-        """Get recommended Git branch based on confidence."""
-        if confidence_level == "high":
-            return main_branch
-        elif confidence_level == "medium":
-            return "review"
-        else:
-            return "draft"
-
     def _generate_recommendation(
         self,
         event: AIOpsEvent,
@@ -459,30 +447,29 @@ class PlaybookOrchestrator:
             Human-readable recommendation
         """
         confidence_level = self._get_confidence_level(confidence_score)
-        target_branch = self._get_target_branch(confidence_level)
 
         if not validation.passed:
             return (
                 f"❌ Playbook has validation issues. "
-                f"Push to '{target_branch}' branch for review. "
+                f"Review and fix before execution. "
                 f"({len(validation.issues)} issues found)"
             )
 
         if confidence_level == "high":
             return (
                 f"✓ High confidence ({confidence_score:.0%}). "
-                f"Safe to push to '{target_branch}' branch."
+                f"Production ready - safe to execute."
             )
 
         if confidence_level == "medium":
             return (
                 f"⚠️ Medium confidence ({confidence_score:.0%}). "
-                f"Push to '{target_branch}' branch for human review before merging to main."
+                f"Human review recommended before execution."
             )
 
         return (
             f"⚡ Low confidence ({confidence_score:.0%}). "
-            f"Push to '{target_branch}' branch. Manual review and testing required."
+            f"Manual review and testing required before execution."
         )
 
 

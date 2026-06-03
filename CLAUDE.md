@@ -8,11 +8,11 @@ This file provides guidance to Claude Code when working with the Ansible Maya co
 
 ### Core Components
 
-1. **Event Handler** (`sage/handlers/`) - Receives and classifies infrastructure events
-2. **Playbook Generator** (`sage/core/`) - Uses LLMs to generate Ansible playbooks
-3. **Validator** (`sage/validation/`) - Lints and tests generated playbooks
-4. **LLM Providers** (`sage/core/providers/`) - Pluggable interface for different AI models
-5. **API Server** (`sage/api/`) - FastAPI REST interface
+1. **Event Handler** (`ansible_maya/handlers/`) - Receives and classifies infrastructure events
+2. **Playbook Generator** (`ansible_maya/core/`) - Uses LLMs to generate Ansible playbooks
+3. **Validator** (`ansible_maya/validation/`) - Lints and tests generated playbooks
+4. **LLM Providers** (`ansible_maya/core/providers/`) - Pluggable interface for different AI models
+5. **API Server** (`ansible_maya/api/`) - FastAPI REST interface
 
 ### Technology Stack
 
@@ -35,9 +35,9 @@ This file provides guidance to Claude Code when working with the Ansible Maya co
 This project ports key concepts from the `vscode-ansible` TypeScript codebase to Python:
 
 **Critical files ported:**
-- `vscode-ansible/src/features/lightspeed/ansibleContext.ts` → `sage/core/ansible_context.py`
-- `vscode-ansible/src/features/lightspeed/providers/base.ts` → `sage/core/providers/base.py`
-- `vscode-ansible/src/definitions/constants.ts` → `sage/core/prompt_templates.py`
+- `vscode-ansible/src/features/lightspeed/ansibleContext.ts` → `ansible_maya/core/ansible_context.py`
+- `vscode-ansible/src/features/lightspeed/providers/base.ts` → `ansible_maya/core/providers/base.py`
+- `vscode-ansible/src/definitions/constants.ts` → `ansible_maya/core/prompt_templates.py`
 
 **Key patterns to maintain:**
 
@@ -77,19 +77,19 @@ from ansible_maya.core.providers.base import BaseLLMProvider
 
 ### Adding a New LLM Provider
 
-1. Create `sage/core/providers/{provider_name}.py`
+1. Create `ansible_maya/core/providers/{provider_name}.py`
 2. Inherit from `BaseLLMProvider`
 3. Implement required abstract methods:
    - `generate_playbook()`
    - `validate_config()`
    - `get_status()`
-4. Register in `sage/core/providers/__init__.py`
+4. Register in `ansible_maya/core/providers/__init__.py`
 5. Add configuration schema to `config/providers.yaml`
 6. Write tests in `tests/unit/providers/test_{provider_name}.py`
 
 Example:
 ```python
-# sage/core/providers/custom.py
+# ansible_maya/core/providers/custom.py
 from ansible_maya.core.providers.base import BaseLLMProvider
 
 class CustomProvider(BaseLLMProvider):
@@ -104,7 +104,7 @@ class CustomProvider(BaseLLMProvider):
 ### Adding a New Event Type
 
 1. Define pattern in `config/event_patterns.yaml`
-2. Add prompt template function in `sage/handlers/event_classifier.py`
+2. Add prompt template function in `ansible_maya/handlers/event_classifier.py`
 3. Add validation rules if needed
 4. Write integration test in `tests/integration/test_events.py`
 
@@ -121,7 +121,7 @@ pytest tests/integration/test_playbook_generation.py --run-integration
 pytest -m "not slow"
 
 # Run with coverage
-pytest --cov=sage --cov-report=html
+pytest --cov=ansible_maya --cov-report=html
 ```
 
 ### Pre-commit Hooks
@@ -146,7 +146,7 @@ This runs:
 
 ### Adding a New Ansible System Prompt
 
-Edit `sage/core/prompt_templates.py`:
+Edit `ansible_maya/core/prompt_templates.py`:
 
 ```python
 ANSIBLE_SYSTEM_PROMPT_CUSTOM = """You are an Ansible expert specializing in {domain}.
@@ -219,7 +219,7 @@ def generate_playbook(
 
 ### Error Handling
 
-Use custom exceptions defined in `sage/core/exceptions.py`:
+Use custom exceptions defined in `ansible_maya/core/exceptions.py`:
 
 ```python
 from ansible_maya.core.exceptions import PlaybookGenerationError, ValidationError
@@ -339,7 +339,7 @@ async def test_full_generation_flow(event_fixture, claude_provider):
 For critical playbooks, validate with Molecule:
 
 ```python
-# sage/validation/molecule_runner.py
+# ansible_maya/validation/molecule_runner.py
 async def test_generated_playbook(playbook_content: str) -> MoleculeResult:
     """Run Molecule test on generated playbook."""
     # Create temp directory with molecule structure
@@ -394,7 +394,7 @@ docker-compose exec ansible-maya bash
 
 ### Common Issues
 
-**Issue**: `ModuleNotFoundError: No module named 'sage'`
+**Issue**: `ModuleNotFoundError: No module named 'ansible_maya'`
 **Solution**: Install in editable mode: `pip install -e .`
 
 **Issue**: LLM API timeouts
@@ -414,7 +414,7 @@ Run with full debug output:
 SAGE_LOG_LEVEL=DEBUG \
 SAGE_LOG_LLM_PROMPTS=true \
 SAGE_LOG_LLM_RESPONSES=true \
-python -m sage.api.server
+python -m ansible_maya.api.server
 ```
 
 ---
@@ -486,7 +486,7 @@ response = await llm_client.generate(...)
 
 ## Questions?
 
-- Check existing code patterns in `sage/core/`
+- Check existing code patterns in `ansible_maya/core/`
 - Review tests in `tests/` for examples
 - See `docs/` for detailed documentation
 - Ask in GitHub Discussions for clarification

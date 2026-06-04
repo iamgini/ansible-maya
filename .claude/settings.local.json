@@ -31,7 +31,9 @@
       "Bash(podman-compose build *)",
       "Bash(podman-compose up *)",
       "Bash(ansible-playbook generate-and-push.yml -e \"event_type=test_timestamp\")",
-      "Bash(ansible-playbook generate-and-push.yml -v)"
+      "Bash(ansible-playbook generate-and-push.yml -v)",
+      "Read(//home/gmadappa/ansible/ansible-aap-cac/**)",
+      "Read(//home/gmadappa/ansible/ansible-controller-cac/**)"
     ]
   }
 }

@@ -547,7 +547,9 @@ For security issues, please report them via [GitHub Security Advisories](https:/
 - **[WORKFLOW.md](WORKFLOW.md)** - Detailed workflow and integration guide
 - **[CLAUDE.md](CLAUDE.md)** - Developer guidance for extending Ansible Maya
 - **[CONTRIBUTING.md](CONTRIBUTING.md)** - Contribution guidelines
+- **[DOCKER-USAGE.md](DOCKER-USAGE.md)** - Docker deployment and production guide
 - **[examples/](examples/)** - Usage examples and templates
+- **[ansible-aiops](https://github.com/iamgini/ansible-aiops)** - Complete AIOps integration examples
 
 ---
 
@@ -590,6 +592,12 @@ This product incorporates concepts from [vscode-ansible](https://github.com/ansi
 - 🐛 **Bug Reports**: [GitHub Issues](https://github.com/iamgini/ansible-maya/issues)
 - 📚 **Documentation**: See docs in this repository
 - 🌐 **Author**: [@iamgini](https://github.com/iamgini)
+
+---
+
+## 📦 Example Integrations
+
+**[ansible-aiops](https://github.com/iamgini/ansible-aiops)** - Complete AIOps workflow demonstrating Ansible Maya integration with Event-Driven Ansible (EDA), MCP, and AAP. Includes intelligent job template matching, automated playbook generation, and Git integration workflows.
 
 ---
 

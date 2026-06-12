@@ -20,8 +20,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Enable with `?multi_agent_review=true` query parameter
 
 ### Planned
-- OpenAI provider (native implementation)
-- Ollama (local LLM) provider  
 - Molecule testing integration for generated playbooks
 - RAG/Knowledge base for learning from past playbooks
 - Additional integration tests

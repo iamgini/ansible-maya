@@ -624,14 +624,9 @@ This product incorporates concepts from [vscode-ansible](https://github.com/ansi
 ### Planned Features (Quality & Intelligence)
 - [ ] **RAG/Knowledge Base** - Learn from past successful playbooks. Organization-specific patterns
 - [ ] **Auto Test Generation** - Generate Molecule tests alongside playbooks
-- [ ] **Interactive Refinement** - Multi-turn conversation to improve playbooks iteratively
 - [ ] **Explain Mode** - Show reasoning behind module choices and risk assessment
 - [ ] **A/B Generation** - Generate multiple approaches for comparison
 - [ ] **Auto-Parameterization** - Extract hardcoded values into reusable variables
-
-### Planned Features (Providers & Platform)
-- [ ] OpenAI provider (native implementation)
-- [ ] Ollama (local LLM) provider
 - [ ] Metrics and observability dashboard
 - [ ] Multi-language support
 - [ ] Custom prompt template editor UI

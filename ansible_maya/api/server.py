@@ -81,9 +81,10 @@ async def readiness_check() -> JSONResponse:
 
 
 # API routes
-from ansible_maya.api.routes import events
+from ansible_maya.api.routes import events, specs
 
 app.include_router(events.router, prefix="/api/v1/events", tags=["events"])
+app.include_router(specs.router, prefix="/api/v1/specs", tags=["specs"])
 
 
 if __name__ == "__main__":

@@ -15,7 +15,7 @@ env:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    environment: GH
+    # environment: GH
     permissions:
       contents: read
 
@@ -52,4 +52,3 @@ jobs:
         run: |
           podman push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.version }}
           podman push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-

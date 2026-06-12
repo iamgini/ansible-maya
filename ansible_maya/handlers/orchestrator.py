@@ -196,9 +196,7 @@ class PlaybookOrchestrator:
         # If validation still failing after auto-fix attempts, try refinement
         if not validation_result.passed:
             logger.info("Attempting to refine playbook to fix validation issues")
-            playbook, validation_result = await self._refine_playbook(
-                playbook, validation_result
-            )
+            playbook, validation_result = await self._refine_playbook(playbook, validation_result)
 
         # Calculate confidence score
         confidence_score = self._calculate_confidence_score(
@@ -410,9 +408,7 @@ class PlaybookOrchestrator:
             score -= 0.1
 
         # Known event type bonus
-        if event.event_type in (
-            self.KNOWN_SAFE_EVENTS | self.APPROVAL_REQUIRED_EVENTS
-        ):
+        if event.event_type in (self.KNOWN_SAFE_EVENTS | self.APPROVAL_REQUIRED_EVENTS):
             score += 0.2
 
         # Ensure in range [0.0, 1.0]

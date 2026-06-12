@@ -161,8 +161,10 @@ class BaseLLMProvider(ABC):
             stripped = line.strip()
 
             # Start of YAML content
-            if stripped.startswith("---") or stripped.startswith("-") or (
-                stripped and not in_yaml and re.match(r"^[a-z_]", stripped, re.IGNORECASE)
+            if (
+                stripped.startswith("---")
+                or stripped.startswith("-")
+                or (stripped and not in_yaml and re.match(r"^[a-z_]", stripped, re.IGNORECASE))
             ):
                 in_yaml = True
 

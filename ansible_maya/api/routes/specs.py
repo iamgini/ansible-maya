@@ -86,7 +86,9 @@ async def generate_from_spec(spec_id: str, request: PlaybookFromSpecRequest):
 
         # Enhance event description with approved spec
         enhanced_event = spec.event
-        enhanced_event.description = f"{spec.event.description}\n\nApproved execution plan:\n{spec.steps}"
+        enhanced_event.description = (
+            f"{spec.event.description}\n\nApproved execution plan:\n{spec.steps}"
+        )
 
         # Generate playbook
         response = await orchestrator.handle_event(enhanced_event)

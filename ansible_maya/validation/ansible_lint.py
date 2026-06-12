@@ -96,9 +96,7 @@ class AnsibleLintValidator:
             raise YAMLValidationError(f"Invalid YAML: {str(e)}")
 
         # Write to temp file
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".yml", delete=False
-        ) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yml", delete=False) as f:
             f.write(playbook_content)
             playbook_file = Path(f.name)
 
@@ -133,12 +131,15 @@ class AnsibleLintValidator:
         # DEMO MODE: Skip ansible-lint (not in minimal container)
         # Just return success if YAML is valid
         import os
-        if not os.path.exists("/usr/bin/ansible-lint") and not os.path.exists("/usr/local/bin/ansible-lint"):
+
+        if not os.path.exists("/usr/bin/ansible-lint") and not os.path.exists(
+            "/usr/local/bin/ansible-lint"
+        ):
             return LintResult(
                 passed=True,
                 issues=[],
                 output="YAML validation passed (ansible-lint skipped in demo mode)",
-                exit_code=0
+                exit_code=0,
             )
 
         cmd = ["ansible-lint", "--format", "json"]
@@ -252,9 +253,7 @@ class AnsibleLintValidator:
 
             severity_icon = "⚠️" if issue.severity == "warning" else "❌"
 
-            lines.append(
-                f"{severity_icon} [{issue.rule_id}] {issue.message}{location}{task_info}"
-            )
+            lines.append(f"{severity_icon} [{issue.rule_id}] {issue.message}{location}{task_info}")
 
         return "\n".join(lines)
 

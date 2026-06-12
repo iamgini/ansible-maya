@@ -45,9 +45,7 @@ class SpecGenerator:
         spec_prompt = self._build_spec_prompt(event)
 
         # Use cheaper/faster model for spec
-        spec_text = await self.llm_provider.generate(
-            spec_prompt, model="haiku", max_tokens=1000
-        )
+        spec_text = await self.llm_provider.generate(spec_prompt, model="haiku", max_tokens=1000)
 
         spec_id = str(uuid4())
 

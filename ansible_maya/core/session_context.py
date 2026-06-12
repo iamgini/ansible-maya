@@ -207,9 +207,7 @@ class SessionContext:
         recent = [e for e in self._host_index[host] if e.timestamp > cutoff]
         return len(recent) > 0
 
-    def format_context_for_prompt(
-        self, host: str, current_event_type: str, limit: int = 3
-    ) -> str:
+    def format_context_for_prompt(self, host: str, current_event_type: str, limit: int = 3) -> str:
         """
         Format related events as context string for LLM prompt.
 
@@ -241,11 +239,11 @@ class SessionContext:
 
             # Add key metadata if available
             if event.metadata:
-                if 'cpu_percent' in event.metadata:
+                if "cpu_percent" in event.metadata:
                     context += f"   - CPU: {event.metadata['cpu_percent']}%\n"
-                if 'memory_percent' in event.metadata:
+                if "memory_percent" in event.metadata:
                     context += f"   - Memory: {event.metadata['memory_percent']}%\n"
-                if 'disk_usage' in event.metadata:
+                if "disk_usage" in event.metadata:
                     context += f"   - Disk: {event.metadata['disk_usage']}%\n"
 
             context += "\n"
@@ -280,12 +278,12 @@ class SessionContext:
             event_types[event.event_type] = event_types.get(event.event_type, 0) + 1
 
         return {
-            'total_events': total_events,
-            'successful': successful,
-            'failed': failed,
-            'unique_hosts': len(self._host_index),
-            'unique_services': len(self._service_index),
-            'event_types': event_types,
+            "total_events": total_events,
+            "successful": successful,
+            "failed": failed,
+            "unique_hosts": len(self._host_index),
+            "unique_services": len(self._service_index),
+            "event_types": event_types,
         }
 
     # Private methods

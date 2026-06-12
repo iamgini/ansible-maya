@@ -67,11 +67,38 @@ class AnsibleContextProcessor:
 
     # Module FQCN enforcement patterns
     BUILTIN_MODULES = {
-        "debug", "set_fact", "include_vars", "include_tasks", "import_tasks",
-        "command", "shell", "raw", "script", "copy", "file", "template",
-        "lineinfile", "blockinfile", "replace", "yum", "apt", "dnf",
-        "service", "systemd", "user", "group", "get_url", "uri", "wait_for",
-        "stat", "assert", "fail", "package", "pip", "git", "unarchive",
+        "debug",
+        "set_fact",
+        "include_vars",
+        "include_tasks",
+        "import_tasks",
+        "command",
+        "shell",
+        "raw",
+        "script",
+        "copy",
+        "file",
+        "template",
+        "lineinfile",
+        "blockinfile",
+        "replace",
+        "yum",
+        "apt",
+        "dnf",
+        "service",
+        "systemd",
+        "user",
+        "group",
+        "get_url",
+        "uri",
+        "wait_for",
+        "stat",
+        "assert",
+        "fail",
+        "package",
+        "pip",
+        "git",
+        "unarchive",
     }
 
     def __init__(self):
@@ -258,7 +285,9 @@ class AnsibleContextProcessor:
         # Truncate if needed
         lines = processed_content.split("\n")
         if len(lines) > max_lines:
-            processed_content = "\n".join(lines[:max_lines]) + f"\n... ({len(lines) - max_lines} more lines)"
+            processed_content = (
+                "\n".join(lines[:max_lines]) + f"\n... ({len(lines) - max_lines} more lines)"
+            )
 
         return {
             "file_type": file_type.value,

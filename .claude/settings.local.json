@@ -36,7 +36,13 @@
       "Read(//home/gmadappa/ansible/ansible-controller-cac/**)",
       "Bash(grep -E \"\\\\.md$\")",
       "Bash(gh auth *)",
-      "Bash(gh release *)"
+      "Bash(gh release *)",
+      "Bash(unzip -q \"/home/gmadappa/Downloads/logs_73770249106 \\(3\\).zip\")",
+      "Bash(unzip -l \"/home/gmadappa/Downloads/logs_73770249106 \\(3\\).zip\")",
+      "Bash(unzip -o \"/home/gmadappa/Downloads/logs_73770249106 \\(3\\).zip\" \"build-and-push/*\")",
+      "Bash(gh run *)",
+      "Bash(pip index *)",
+      "Bash(awk '{print $7}')"
     ]
   }
 }

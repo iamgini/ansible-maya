@@ -63,9 +63,7 @@ class CustomProvider(BaseLLMProvider):
         # Call parent __init__ AFTER setting attributes
         super().__init__(config)
 
-    async def generate_playbook(
-        self, request: GenerationRequest
-    ) -> GenerationResponse:
+    async def generate_playbook(self, request: GenerationRequest) -> GenerationResponse:
         """
         Generate Ansible playbook using custom LLM.
 
@@ -132,38 +130,41 @@ Output only valid YAML, no explanations."""
         content = None
 
         # Standard OpenAI format
-        if hasattr(message, 'content') and message.content:
+        if hasattr(message, "content") and message.content:
             content = message.content
 
         # Reasoning model format (Qwen3.6-35B-A3B)
-        if not content and hasattr(message, 'reasoning_content') and message.reasoning_content:
+        if not content and hasattr(message, "reasoning_content") and message.reasoning_content:
             content = message.reasoning_content
 
         # Check provider_specific_fields (some proxies put it here)
         if not content:
             try:
                 # Try accessing as attribute
-                if hasattr(message, 'provider_specific_fields'):
+                if hasattr(message, "provider_specific_fields"):
                     fields = message.provider_specific_fields
                     if isinstance(fields, dict):
-                        content = fields.get('reasoning') or fields.get('reasoning_content')
+                        content = fields.get("reasoning") or fields.get("reasoning_content")
 
                 # Try accessing raw dict if available
-                if not content and hasattr(message, 'model_extra'):
+                if not content and hasattr(message, "model_extra"):
                     extra = message.model_extra
-                    if isinstance(extra, dict) and 'provider_specific_fields' in extra:
-                        fields = extra['provider_specific_fields']
-                        content = fields.get('reasoning') or fields.get('reasoning_content')
+                    if isinstance(extra, dict) and "provider_specific_fields" in extra:
+                        fields = extra["provider_specific_fields"]
+                        content = fields.get("reasoning") or fields.get("reasoning_content")
             except Exception:
                 pass
 
         if not content:
-            raise Exception(f"LLM returned empty response. finish_reason: {response.choices[0].finish_reason}")
+            raise Exception(
+                f"LLM returned empty response. finish_reason: {response.choices[0].finish_reason}"
+            )
 
         # Clean output (remove markdown fences, etc.) - import from base if available
         import re
-        content = re.sub(r'^```ya?ml\s*\n', '', content, flags=re.MULTILINE)
-        content = re.sub(r'\n```\s*$', '', content, flags=re.MULTILINE)
+
+        content = re.sub(r"^```ya?ml\s*\n", "", content, flags=re.MULTILINE)
+        content = re.sub(r"\n```\s*$", "", content, flags=re.MULTILINE)
         content = content.strip()
 
         latency_ms = int((time.time() - start_time) * 1000)
@@ -172,7 +173,11 @@ Output only valid YAML, no explanations."""
             playbook=content,
             model=response.model,
             provider=self.name,
-            tokens_used=response.usage.prompt_tokens + response.usage.completion_tokens if response.usage else None,
+            tokens_used=(
+                response.usage.prompt_tokens + response.usage.completion_tokens
+                if response.usage
+                else None
+            ),
             latency_ms=latency_ms,
             metadata={
                 "input_tokens": response.usage.prompt_tokens if response.usage else None,

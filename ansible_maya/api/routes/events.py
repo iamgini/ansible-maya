@@ -16,7 +16,7 @@ router = APIRouter()
 @router.post("/generate")
 async def generate_playbook(
     event: AIOpsEvent,
-    multi_agent_review: bool = Query(False, description="Enable multi-agent review pipeline")
+    multi_agent_review: bool = Query(False, description="Enable multi-agent review pipeline"),
 ):
     """Generate playbook from event.
 
@@ -35,15 +35,13 @@ async def generate_playbook(
         pipeline = MultiAgentPipeline(provider)
 
         refined = await pipeline.generate_with_review(
-            draft_playbook=response.playbook,
-            event_description=event.description
+            draft_playbook=response.playbook, event_description=event.description
         )
 
         # Update response with refined playbook
         response.playbook = refined["playbook"]
         response.confidence_score = min(
-            1.0,
-            response.confidence_score + (refined["confidence_boost"] / 100)
+            1.0, response.confidence_score + (refined["confidence_boost"] / 100)
         )
         response.generation_metadata["multi_agent_review"] = refined["reviews"]
         response.generation_metadata["confidence_boost"] = refined["confidence_boost"]

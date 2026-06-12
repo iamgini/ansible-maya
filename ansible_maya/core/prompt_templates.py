@@ -598,15 +598,15 @@ def get_system_prompt() -> str:
 
 # Temperature tuning by event complexity
 TEMPERATURE_BY_EVENT = {
-    'disk_full': 0.2,        # Well-defined problem, deterministic solution
-    'disk_space': 0.2,       # Same as disk_full
-    'service_down': 0.3,     # Some variation needed for different services
-    'service_stopped': 0.3,  # Same as service_down
-    'high_cpu': 0.5,         # Investigative, needs more creativity
-    'cpu_usage': 0.5,        # Same as high_cpu
-    'high_memory': 0.4,      # Investigative but more constrained than CPU
-    'memory_usage': 0.4,     # Same as high_memory
-    'generic': 0.3,          # Balanced default
+    "disk_full": 0.2,  # Well-defined problem, deterministic solution
+    "disk_space": 0.2,  # Same as disk_full
+    "service_down": 0.3,  # Some variation needed for different services
+    "service_stopped": 0.3,  # Same as service_down
+    "high_cpu": 0.5,  # Investigative, needs more creativity
+    "cpu_usage": 0.5,  # Same as high_cpu
+    "high_memory": 0.4,  # Investigative but more constrained than CPU
+    "memory_usage": 0.4,  # Same as high_memory
+    "generic": 0.3,  # Balanced default
 }
 
 
@@ -642,6 +642,7 @@ def get_event_prompt(event_type: str, **kwargs) -> str:
 
 # Multi-task chaining support (Lightspeed pattern)
 
+
 def parse_multi_task_prompt(prompt: str) -> List[str]:
     """
     Parse ampersand-separated multi-task prompts.
@@ -662,11 +663,11 @@ def parse_multi_task_prompt(prompt: str) -> List[str]:
         >>> parse_multi_task_prompt("Install nginx & Configure site & Start service")
         ['Install nginx', 'Configure site', 'Start service']
     """
-    if '&' not in prompt:
+    if "&" not in prompt:
         return [prompt.strip()]
 
     # Split by ampersand and clean up whitespace
-    tasks = [task.strip() for task in prompt.split('&')]
+    tasks = [task.strip() for task in prompt.split("&")]
 
     # Filter out empty tasks
     return [task for task in tasks if task]
@@ -693,8 +694,8 @@ def format_multi_task_prompt(tasks: List[str], event_context: dict = None) -> st
         ..."
     """
     context = event_context or {}
-    host = context.get('host', 'target_host')
-    timestamp = context.get('timestamp', 'now')
+    host = context.get("host", "target_host")
+    timestamp = context.get("timestamp", "now")
 
     prompt = f"""Generate an Ansible playbook to perform multiple related tasks on {host}.
 
@@ -784,4 +785,4 @@ def is_multi_task_prompt(prompt: str) -> bool:
         >>> is_multi_task_prompt("Install nginx & Start service")
         True
     """
-    return '&' in prompt
+    return "&" in prompt

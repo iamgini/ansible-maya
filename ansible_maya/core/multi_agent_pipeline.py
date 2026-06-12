@@ -9,6 +9,7 @@ from pydantic import BaseModel
 
 class ReviewFinding(BaseModel):
     """Single review finding."""
+
     category: str  # security, best-practices, idempotency, etc.
     severity: str  # high, medium, low
     issue: str
@@ -18,6 +19,7 @@ class ReviewFinding(BaseModel):
 
 class ReviewResult(BaseModel):
     """Review results from an agent."""
+
     agent: str
     findings: List[ReviewFinding]
     overall_score: int  # 0-100
@@ -30,9 +32,7 @@ class MultiAgentPipeline:
         self.llm_provider = llm_provider
 
     async def generate_with_review(
-        self,
-        draft_playbook: str,
-        event_description: str
+        self, draft_playbook: str, event_description: str
     ) -> Dict[str, Any]:
         """Run multi-agent review pipeline.
 
@@ -52,19 +52,13 @@ class MultiAgentPipeline:
 
         # Agent 4: Refine based on feedback
         refined_playbook = await self._refine_playbook(
-            draft_playbook,
-            security_review,
-            bp_review,
-            event_description
+            draft_playbook, security_review, bp_review, event_description
         )
 
         return {
             "playbook": refined_playbook,
-            "reviews": {
-                "security": security_review.dict(),
-                "best_practices": bp_review.dict()
-            },
-            "confidence_boost": self._calculate_boost(security_review, bp_review)
+            "reviews": {"security": security_review.dict(), "best_practices": bp_review.dict()},
+            "confidence_boost": self._calculate_boost(security_review, bp_review),
         }
 
     async def _security_review(self, playbook: str) -> ReviewResult:
@@ -96,9 +90,7 @@ If no issues, return empty array: []"""
         score -= len([f for f in findings if f.severity == "medium"]) * 10
 
         return ReviewResult(
-            agent="security_reviewer",
-            findings=findings,
-            overall_score=max(0, score)
+            agent="security_reviewer", findings=findings, overall_score=max(0, score)
         )
 
     async def _best_practices_review(self, playbook: str) -> ReviewResult:
@@ -130,9 +122,7 @@ If no issues, return empty array: []"""
         score -= len([f for f in findings if f.severity == "medium"]) * 8
 
         return ReviewResult(
-            agent="best_practices_reviewer",
-            findings=findings,
-            overall_score=max(0, score)
+            agent="best_practices_reviewer", findings=findings, overall_score=max(0, score)
         )
 
     async def _refine_playbook(
@@ -140,7 +130,7 @@ If no issues, return empty array: []"""
         draft: str,
         security_review: ReviewResult,
         bp_review: ReviewResult,
-        event_description: str
+        event_description: str,
     ) -> str:
         """Refine playbook based on reviews."""
 
@@ -152,10 +142,12 @@ If no issues, return empty array: []"""
             return draft
 
         # Build refinement prompt
-        findings_text = "\n".join([
-            f"- [{f.severity.upper()}] {f.category}: {f.issue}\n  Fix: {f.suggestion}"
-            for f in all_findings
-        ])
+        findings_text = "\n".join(
+            [
+                f"- [{f.severity.upper()}] {f.category}: {f.issue}\n  Fix: {f.suggestion}"
+                for f in all_findings
+            ]
+        )
 
         prompt = f"""Improve this Ansible playbook by addressing the review findings.
 
@@ -185,7 +177,7 @@ Return ONLY the playbook YAML, no explanations."""
         # Extract JSON array from response
         try:
             # Try to find JSON array in response
-            match = re.search(r'\[.*\]', response, re.DOTALL)
+            match = re.search(r"\[.*\]", response, re.DOTALL)
             if match:
                 findings_data = json.loads(match.group())
                 return [ReviewFinding(**f) for f in findings_data]
@@ -206,11 +198,7 @@ Return ONLY the playbook YAML, no explanations."""
 
         return text.strip()
 
-    def _calculate_boost(
-        self,
-        security: ReviewResult,
-        bp: ReviewResult
-    ) -> int:
+    def _calculate_boost(self, security: ReviewResult, bp: ReviewResult) -> int:
         """Calculate confidence boost from reviews."""
 
         # If both scores are high, boost confidence
@@ -221,6 +209,6 @@ Return ONLY the playbook YAML, no explanations."""
         elif avg_score >= 75:
             return 10  # +10% confidence
         elif avg_score >= 60:
-            return 5   # +5% confidence
+            return 5  # +5% confidence
         else:
-            return 0   # No boost if many issues
+            return 0  # No boost if many issues

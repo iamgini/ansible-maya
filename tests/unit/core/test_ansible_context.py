@@ -86,9 +86,7 @@ debug_mode: false
         assert file_type == AnsibleFileType.HANDLERS
 
         # Vars file by path
-        file_type = context_processor.detect_file_type(
-            content, Path("/group_vars/all.yml")
-        )
+        file_type = context_processor.detect_file_type(content, Path("/group_vars/all.yml"))
         assert file_type == AnsibleFileType.VARS
 
 

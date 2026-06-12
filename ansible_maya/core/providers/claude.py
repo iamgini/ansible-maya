@@ -161,8 +161,10 @@ class ClaudeProvider(BaseLLMProvider):
             # Parse multiple tasks and format combined prompt
             tasks = parse_multi_task_prompt(request.event_description)
             event_context = {
-                'host': request.host or 'target_host',
-                'timestamp': request.constraints.get('timestamp', 'now') if request.constraints else 'now',
+                "host": request.host or "target_host",
+                "timestamp": (
+                    request.constraints.get("timestamp", "now") if request.constraints else "now"
+                ),
             }
             user_prompt = format_multi_task_prompt(tasks, event_context)
         elif request.event_type:
@@ -187,9 +189,7 @@ Output only valid YAML, no explanations."""
         if request.host:
             session = get_session_context()
             session_context = session.format_context_for_prompt(
-                host=request.host,
-                current_event_type=request.event_type or "generic",
-                limit=3
+                host=request.host, current_event_type=request.event_type or "generic", limit=3
             )
             if session_context:
                 user_prompt += session_context
@@ -246,7 +246,9 @@ Output only valid YAML, no explanations."""
                     host=request.host,
                     description=request.event_description,
                     playbook=final_playbook,
-                    service=(request.constraints or {}).get('service') if request.constraints else None,
+                    service=(
+                        (request.constraints or {}).get("service") if request.constraints else None
+                    ),
                     success=True,  # Assume success at generation time, update after validation
                     metadata=request.constraints or {},
                 )
@@ -258,9 +260,15 @@ Output only valid YAML, no explanations."""
                 tokens_used=tokens_used,
                 latency_ms=latency_ms,
                 metadata={
-                    "input_tokens": response.usage.input_tokens if hasattr(response, "usage") else None,
-                    "output_tokens": response.usage.output_tokens if hasattr(response, "usage") else None,
-                    "stop_reason": response.stop_reason if hasattr(response, "stop_reason") else None,
+                    "input_tokens": (
+                        response.usage.input_tokens if hasattr(response, "usage") else None
+                    ),
+                    "output_tokens": (
+                        response.usage.output_tokens if hasattr(response, "usage") else None
+                    ),
+                    "stop_reason": (
+                        response.stop_reason if hasattr(response, "stop_reason") else None
+                    ),
                     "temperature": temperature,
                     "event_type": request.event_type,
                 },

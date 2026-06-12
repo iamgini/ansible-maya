@@ -194,12 +194,6 @@ ANTHROPIC_API_KEY=sk-ant-...           # For Claude
 # Service Configuration
 SAGE_LOG_LEVEL=INFO
 SAGE_ANSIBLE_LINT_AUTO_FIX=true        # Auto-fix lint issues
-
-# Database (for playbook history)
-DATABASE_URL=postgresql://sage:password@postgres:5432/ansible_sage
-
-# Redis (for caching and deduplication)
-REDIS_URL=redis://redis:6379/0
 ```
 
 ### Confidence Scoring

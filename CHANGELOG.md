@@ -46,8 +46,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Infrastructure**:
   - Docker containerization with multi-stage builds
   - Docker Compose for local development
-  - PostgreSQL for playbook history
-  - Redis for caching and deduplication
+  - Stateless API design (no database required)
   - GitHub Actions CI/CD pipeline
 
 - **Documentation**:

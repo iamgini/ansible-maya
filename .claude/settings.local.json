@@ -43,7 +43,8 @@
       "Bash(gh run *)",
       "Bash(pip index *)",
       "Bash(awk '{print $7}')",
-      "Bash(pytest *)"
+      "Bash(pytest *)",
+      "Bash(gh workflow *)"
     ]
   }
 }

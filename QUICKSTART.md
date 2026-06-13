@@ -136,7 +136,14 @@ curl -X POST http://localhost:8000/api/v1/events/generate \
 open http://localhost:8000/docs
 ```
 
-### 4. Two-Phase Generation (Spec-Kit)
+### 4. Two-Phase Generation (Spec-Kit) - CLI/Local Use Only
+
+**⚠️ Limitation:** This workflow requires **manual approval between API calls** and uses **in-memory storage** (lost on restart). It works for:
+- ✅ **Local CLI** workflows (ansible-playbook, ansible-navigator)
+- ✅ **Interactive API testing** (human reviews spec_id, then approves)
+- ❌ **NOT for AAP/EDA** (no pause mechanism mid-job, in-memory storage)
+
+For AAP/EDA automated workflows, use Option 5 (multi-agent review) instead.
 
 ```bash
 # Phase 1: Get execution plan
@@ -148,10 +155,32 @@ curl -X POST http://localhost:8000/api/v1/specs/plan \
     "host": "web-01"
   }' | jq .
 
-# Review plan, then approve with spec_id
-curl -X POST http://localhost:8000/api/v1/specs/{spec_id}/generate \
-  -d '{"approved": true}'
+# Returns:
+# {
+#   "spec_id": "spec-abc123",
+#   "steps": "1. Check nginx status\n2. Restart service\n3. Verify listening",
+#   "requires_approval": true,
+#   "message": "Review the execution plan. Approve to generate playbook."
+# }
+
+# >>> MANUAL REVIEW STEP <<<
+# Human reviews the "steps" field above
+
+# Phase 2: Approve & generate playbook
+curl -X POST http://localhost:8000/api/v1/specs/spec-abc123/generate \
+  -H "Content-Type: application/json" \
+  -d '{"approved": true}' | jq .
+
+# Or reject:
+# -d '{"approved": false}'  # Returns: "Spec not approved. No playbook generated."
 ```
+
+**Why it doesn't work with AAP/EDA:**
+- AAP job templates execute start-to-finish (no mid-job pause)
+- `_specs_store` is in-memory only (not Redis/DB)
+- Phase 1 and Phase 2 would be separate job runs → spec_id lost
+
+**Future:** Spec persistence with Redis/PostgreSQL would enable async approval workflows.
 
 ### 5. Multi-Agent Review (Higher Quality)
 

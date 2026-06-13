@@ -11,6 +11,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Molecule testing integration for generated playbooks
 - RAG/Knowledge base for learning from past playbooks
 - Additional integration tests
+- Redis/PostgreSQL backend for persistent spec storage
+- Git-based approval workflow (PR-based)
+- Slack/Teams approval integration
+
+## [0.3.0] - 2026-06-13
+
+### Added
+- **Comprehensive Approval Workflows Documentation**
+  - New `docs/APPROVAL-WORKFLOWS.md` with 5 approval patterns
+  - Comparison matrix for different approval methods
+  - AAP/EDA compatibility guidelines
+  - Future roadmap for async approval workflows
+- **Multi-Agent Review Integration Examples**
+  - Updated `ansible-aiops/intelligent-aiops-workflow.yml` with multi-agent option
+  - Commented simple call for reference
+  - Increased timeout for multi-agent processing (180s)
+  
+### Changed
+- **Enhanced Spec-Kit Documentation**
+  - Clear AAP/EDA limitation warnings in QUICKSTART.md
+  - Added code comments in `specs.py` explaining constraints
+  - Documented use cases: Local CLI ✅, AAP/EDA ❌
+  - Explained why in-memory storage doesn't work with AAP
+- **Improved QUICKSTART.md**
+  - Expanded Spec-Kit section with detailed examples
+  - Added approval/rejection flow examples
+  - Clear recommendation: Use multi-agent review for AAP/EDA
+  
+### Documentation
+- New approval workflow patterns documented:
+  - **Spec-Kit** (current, local CLI only)
+  - **Multi-Agent Review** (current, AAP/EDA compatible)
+  - **External Approval Service** (future, Redis-based)
+  - **Git-based Approval** (future, PR-based GitOps)
+  - **Slack/Teams Approval** (future, ChatOps)
+- Added migration path from current to future implementations
+- Configuration examples for each approval method
+
+### Notes
+This release focuses on documentation improvements and clarifying approval workflow limitations for AAP/EDA environments. Multi-agent review (`?multi_agent_review=true`) is the recommended approach for automated workflows.
 
 ## [0.2.0] - 2026-06-12
 
@@ -93,6 +133,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Notes
 This is the first public release. The API is functional but may evolve based on user feedback. Contributions and feedback welcome!
 
-[Unreleased]: https://github.com/iamgini/ansible-maya/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/iamgini/ansible-maya/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/iamgini/ansible-maya/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/iamgini/ansible-maya/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/iamgini/ansible-maya/releases/tag/v0.1.0

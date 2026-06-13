@@ -13,6 +13,12 @@ from ansible_maya.handlers.orchestrator import AIOpsEvent, PlaybookOrchestrator
 router = APIRouter()
 
 # In-memory spec storage (replace with Redis/DB in production)
+# LIMITATION: Does NOT work with AAP/EDA automated workflows because:
+#   1. In-memory only - lost on API restart
+#   2. AAP jobs can't pause mid-execution for approval
+#   3. Phase 1 and Phase 2 would be different job runs
+# USE CASE: Local CLI, interactive API testing, manual workflows
+# ALTERNATIVE: Use multi_agent_review=true for automated AAP/EDA workflows
 _specs_store = {}
 
 
